@@ -6,7 +6,6 @@ import {
   Validators, 
   ReactiveFormsModule, 
   FormsModule,
-  // Added these missing imports
   ValidatorFn,
   AbstractControl,
   ValidationErrors
@@ -14,18 +13,17 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { AutenticacionService } from '../../services/autenticacion.service';
 
+// Validador personalizado para comparar contraseñas
 export function passwordMatcherValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const formGroup = control as FormGroup;
     const password = formGroup.get('password');
     const confirmarPassword = formGroup.get('confirmarPassword');
 
-    // Si los campos no están, o si 'confirmar' aún no se toca, no hay error
     if (!password || !confirmarPassword || !confirmarPassword.dirty) {
       return null;
     }
 
-    // Devuelve un error si no coinciden
     return password.value !== confirmarPassword.value ? { passwordMismatch: true } : null;
   };
 }
@@ -52,24 +50,37 @@ export class LoginComponent implements OnInit {
     private authService: AutenticacionService,
     private router: Router
   ) {
-    // 1. ADAPTACIÓN: Cambiamos 'email' por 'documentoIdentidad'
+    // Formulario de Login
     this.formularioLogin = this.fb.group({
       documentoIdentidad: ['', [Validators.required]], 
       password: ['', [Validators.required]]
     });
 
-    // 2. ADAPTACIÓN: Ajusta el registro a tu 'RegistroPacienteDTO'
+    // Formulario de Registro
     this.formularioRegistro = this.fb.group({
         nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$')]],
         apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$')]],
-        documentoIdentidad: ['', [Validators.required]],
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [
-            Validators.required,
-            Validators.minLength(8),
+        // Validaciones estrictas para DNI (8 dígitos)
+        documentoIdentidad: ['', [
+          Validators.required, 
+          Validators.minLength(8), 
+          Validators.maxLength(8), 
+          Validators.pattern('^[0-9]*$')
         ]],
-        confirmarPassword: [''] // Added this field so the validator works
-    }, { validators: passwordMatcherValidator() }); // Applied the validator to the group
+        // Validaciones estrictas para Teléfono (9 dígitos)
+        telefono: ['', [
+          Validators.required, 
+          Validators.minLength(9), 
+          Validators.maxLength(9), 
+          Validators.pattern('^[0-9]*$')
+        ]],
+        email: ['', [Validators.required, Validators.email]],
+        direccion: ['', [Validators.required]],
+        fechaNacimiento: ['', [Validators.required]],
+        genero: ['', [Validators.required]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
+        confirmarPassword: [''] 
+    }, { validators: passwordMatcherValidator() });
   }
 
   ngOnInit(): void {
@@ -141,7 +152,7 @@ export class LoginComponent implements OnInit {
         return;
       }
 
-      // Remove confirmarPassword before sending if backend doesn't need it
+      // Excluimos confirmarPassword antes de enviar al backend
       const { confirmarPassword, ...registroData } = this.formularioRegistro.value;
 
       this.authService.register(registroData).subscribe({

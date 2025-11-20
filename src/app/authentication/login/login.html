@@ -56,7 +56,7 @@
                 <input class="form-check-input" type="checkbox" id="remember-me" [(ngModel)]="recordarme" [ngModelOptions]="{standalone: true}">
                 <label class="form-check-label" for="remember-me">Recordarme</label>
               </div>
-              </div>
+            </div>
 
             <div class="d-grid">
               <button type="submit" class="btn btn-primary btn-lg" [disabled]="formularioLogin.invalid || cargando()">
@@ -98,20 +98,22 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <input id="reg-doc" type="text" class="form-control" 
-                           formControlName="documentoIdentidad" required placeholder="Documento de Identidad">
+                           formControlName="documentoIdentidad" required placeholder="DNI (8 dígitos)"
+                           maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <div *ngIf="registroCtls['documentoIdentidad'].invalid && (registroCtls['documentoIdentidad'].dirty || registroCtls['documentoIdentidad'].touched)" class="validation-error">
                         <div *ngIf="registroCtls['documentoIdentidad'].errors?.['required']">El documento es requerido.</div>
-                        <div *ngIf="registroCtls['documentoIdentidad'].errors?.['maxLength']">Máximo 8 caracteres.</div>
-                        <div *ngIf="registroCtls['documentoIdentidad'].errors?.['pattern']">Solo debe contener números.</div>
+                        <div *ngIf="registroCtls['documentoIdentidad'].errors?.['minlength']">Debe tener 8 dígitos.</div>
+                        <div *ngIf="registroCtls['documentoIdentidad'].errors?.['pattern']">Solo números.</div>
                     </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <input id="reg-tel" type="tel" class="form-control" 
-                           formControlName="telefono" required placeholder="Teléfono (9 dígitos)">
+                           formControlName="telefono" required placeholder="Teléfono (9 dígitos)"
+                           maxlength="9" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <div *ngIf="registroCtls['telefono'].invalid && (registroCtls['telefono'].dirty || registroCtls['telefono'].touched)" class="validation-error">
                         <div *ngIf="registroCtls['telefono'].errors?.['required']">El teléfono es requerido.</div>
-                        <div *ngIf="registroCtls['telefono'].errors?.['maxLength']">Máximo 9 caracteres.</div>
-                        <div *ngIf="registroCtls['telefono'].errors?.['pattern']">Solo debe contener números.</div>
+                        <div *ngIf="registroCtls['telefono'].errors?.['minlength']">Debe tener 9 dígitos.</div>
+                        <div *ngIf="registroCtls['telefono'].errors?.['pattern']">Solo números.</div>
                     </div>
                 </div>
             </div>
@@ -171,7 +173,7 @@
                 <div class="col-md-6 mb-4">
                      <div class="input-wrapper">
                       <input id="reg-confirm-password" [type]="mostrarContrasena ? 'text' : 'password'" 
-                             class="form-control" formControlName="confirmarPassword" required placeholder="Confirmar Contraseña">
+                             class="form-control" formControlName="confirmarPassword" required placeholder="Repetir Contraseña">
                      </div>
                      <div *ngIf="registroCtls['confirmarPassword'].errors?.['required'] && (registroCtls['confirmarPassword'].dirty || registroCtls['confirmarPassword'].touched)" class="validation-error">
                          Confirmar la contraseña es requerido.
