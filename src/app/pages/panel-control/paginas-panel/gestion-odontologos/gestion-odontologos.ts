@@ -63,9 +63,9 @@ export class GestionOdontologosComponent implements OnInit {
   // --- Lógica de Guardado ---
 
   guardarOdontologo(datos: Odontologo): void {
-    if (datos.odontologoId) {
+    if (datos.id) {
       // Actualizar
-      this.odontologoService.actualizar(datos.odontologoId, datos).subscribe(() => {
+      this.odontologoService.actualizar(datos.id, datos).subscribe(() => {
         this.cargarLista();
         this.mostrarFormulario = false;
       });
@@ -79,13 +79,13 @@ export class GestionOdontologosComponent implements OnInit {
   }
 
   confirmarEliminacion(): void {
-    if (this.odontologoAEliminar && this.odontologoAEliminar.odontologoId) {
+    if (this.odontologoAEliminar && this.odontologoAEliminar.id) {
       // Nota: Asegúrate de tener el método eliminar en tu servicio.
       // this.odontologoService.eliminar(this.odontologoAEliminar.odontologoId).subscribe(...)
       console.log('Eliminando a:', this.odontologoAEliminar.nombre);
       
       // Simulación visual si falta el endpoint
-      this.odontologos = this.odontologos.filter(o => o.odontologoId !== this.odontologoAEliminar?.odontologoId);
+      this.odontologos = this.odontologos.filter(o => o.id !== this.odontologoAEliminar?.id);
     }
     this.mostrarConfirmacion = false;
     this.odontologoAEliminar = null;

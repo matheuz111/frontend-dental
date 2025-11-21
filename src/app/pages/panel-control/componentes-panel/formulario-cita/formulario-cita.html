@@ -17,7 +17,7 @@
         </div>
         <div>
           <strong>{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</strong><br>
-          <small>DNI: {{ pacienteSeleccionado.documentoIdentidad || 'No registrado' }} - Tel: {{ pacienteSeleccionado.telefono }}</small>
+          <small>DNI: {{ pacienteSeleccionado.usuario?.documentoIdentidad || 'No registrado' }} - Tel: {{ pacienteSeleccionado.telefono }}</small>
         </div>
       </div>
     </div>
@@ -31,7 +31,7 @@
           <select class="form-select" formControlName="odontologoId"
             [class.is-invalid]="formCita.get('odontologoId')?.invalid && formCita.get('odontologoId')?.touched">
             <option value="">Seleccione un profesional...</option>
-            <option *ngFor="let doc of odontologos" [value]="doc.odontologoId">
+            <option *ngFor="let doc of odontologos" [value]="doc.id">
               {{ doc.nombre }} {{ doc.apellido }} ({{ doc.especialidad }})
             </option>
           </select>

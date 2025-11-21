@@ -1,14 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FacturacionService } from '../../../../services/facturacion.service';
 import { Factura } from '../../../../core/models/facturacion';
-// CORRECCIÓN 1: Importar ColumnConfig desde el compartido y borrar la interfaz local
 import { ColumnConfig } from '../../../../shared/tabla-generica/tabla-generica';
 
 @Component({
   selector: 'app-gestion-facturacion',
   templateUrl: './gestion-facturacion.html',
   styleUrls: ['./gestion-facturacion.css'],
-  standalone: false // CORRECCIÓN 2: Necesario para que funcione en tu módulo
+  standalone: false
 })
 export class GestionFacturacionComponent implements OnInit {
   
@@ -23,9 +22,10 @@ export class GestionFacturacionComponent implements OnInit {
   facturaParaEditar: Factura | null = null;
   facturaParaEliminar: Factura | null = null;
 
-  // Configuración de Columnas para Tabla Genérica
+  // Configuración de Columnas
   columnas: ColumnConfig[] = [
-    { name: 'facturaId', header: 'ID' },
+    // CORRECCIÓN: 'id' en lugar de 'facturaId'
+    { name: 'id', header: 'ID' },
     { name: 'paciente.nombre', header: 'Paciente' }, 
     { name: 'fechaEmision', header: 'Fecha', isDate: true },
     { name: 'montoTotal', header: 'Monto', isCurrency: true },
@@ -37,10 +37,13 @@ export class GestionFacturacionComponent implements OnInit {
   }
 
   cargarFacturas(): void {
-    // Ajusta esto según cómo funcione tu backend real
-    this.facturacionService.obtenerPendientes(1).subscribe({
-        next: (data) => this.facturas = data,
-        error: (err) => console.error(err)
+    // CORRECCIÓN: Usamos listar() para ver todas las facturas, no solo las de un paciente
+    this.facturacionService.listar().subscribe({
+        next: (data) => {
+          this.facturas = data;
+          console.log('Facturas cargadas:', data);
+        },
+        error: (err) => console.error('Error cargando facturas:', err)
     });
   }
 
@@ -68,19 +71,32 @@ export class GestionFacturacionComponent implements OnInit {
   // --- Lógica de Guardado/Eliminado ---
 
   guardarFactura(datos: any): void {
-    console.log('Guardando factura:', datos);
-    // this.facturacionService.generarFactura(datos)...
+    console.log('Guardando factura...', datos);
     
-    this.mostrarFormulario = false;
-    this.cargarFacturas(); 
+    // Llamada al servicio para crear la factura
+    this.facturacionService.generarFactura(datos).subscribe({
+      next: (facturaCreada) => {
+        console.log('Factura creada exitosamente:', facturaCreada);
+        this.mostrarFormulario = false; // Cerrar modal
+        this.cargarFacturas(); // Recargar lista
+      },
+      error: (err) => {
+        console.error('Error al guardar factura:', err);
+        alert('Hubo un error al generar la factura. Verifica los datos.');
+      }
+    });
   }
 
   confirmarEliminacion(): void {
-    if (this.facturaParaEliminar) {
-        console.log('Eliminando factura:', this.facturaParaEliminar.facturaId);
-        // this.facturacionService.eliminar(this.facturaParaEliminar.facturaId)...
+    if (this.facturaParaEliminar && this.facturaParaEliminar.id) {
+      this.facturacionService.eliminar(this.facturaParaEliminar.id).subscribe({
+        next: () => {
+          this.cargarFacturas();
+          this.mostrarConfirmacion = false;
+          this.facturaParaEliminar = null;
+        },
+        error: (err) => console.error('Error eliminando factura:', err)
+      });
     }
-    this.mostrarConfirmacion = false;
-    this.facturaParaEliminar = null;
   }
 }

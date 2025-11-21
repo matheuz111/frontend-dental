@@ -19,12 +19,13 @@ export class GestionPacientesComponent implements OnInit {
   mostrarFormulario = false;
   mostrarConfirmacion = false;
   
-  pacienteSeleccionado: Paciente | null = null; // Para editar
+  pacienteSeleccionado: Paciente | null = null;
   pacienteAEliminar: Paciente | null = null;
 
   // Configuración de Columnas para Tabla
   columnas: ColumnConfig[] = [
-    { name: 'documentoIdentidad', header: 'DNI/Doc' },
+    // CORRECCIÓN: Accedemos al DNI a través de la propiedad anidada usuario
+    { name: 'usuario.documentoIdentidad', header: 'DNI/Doc' }, 
     { name: 'nombre', header: 'Nombre' },
     { name: 'apellido', header: 'Apellido' },
     { name: 'telefono', header: 'Teléfono' },
@@ -37,7 +38,10 @@ export class GestionPacientesComponent implements OnInit {
 
   cargarPacientes(): void {
     this.pacienteService.listar().subscribe({
-      next: (data) => this.pacientes = data,
+      next: (data) => {
+        console.log('Pacientes cargados:', data); // Útil para depurar
+        this.pacientes = data;
+      },
       error: (e) => console.error('Error al cargar pacientes', e)
     });
   }
@@ -62,24 +66,32 @@ export class GestionPacientesComponent implements OnInit {
   // --- Lógica de Persistencia ---
 
   guardarPaciente(datos: Paciente): void {
-    if (datos.pacienteId) {
+    // CORRECCIÓN: Usamos 'id' en lugar de 'pacienteId'
+    if (datos.id) {
       // Actualizar
-      this.pacienteService.actualizar(datos.pacienteId, datos).subscribe(() => {
-        this.cargarPacientes();
-        this.mostrarFormulario = false;
+      this.pacienteService.actualizar(datos.id, datos).subscribe({
+        next: () => {
+          this.cargarPacientes();
+          this.mostrarFormulario = false;
+        },
+        error: (err) => console.error('Error al actualizar', err)
       });
     } else {
       // Crear
-      this.pacienteService.crear(datos).subscribe(() => {
-        this.cargarPacientes();
-        this.mostrarFormulario = false;
+      this.pacienteService.crear(datos).subscribe({
+        next: () => {
+          this.cargarPacientes();
+          this.mostrarFormulario = false;
+        },
+        error: (err) => console.error('Error al crear', err)
       });
     }
   }
 
   confirmarEliminacion(): void {
-    if (this.pacienteAEliminar && this.pacienteAEliminar.pacienteId) {
-      this.pacienteService.eliminar(this.pacienteAEliminar.pacienteId).subscribe({
+    // CORRECCIÓN: Verificamos que exista 'id'
+    if (this.pacienteAEliminar && this.pacienteAEliminar.id) {
+      this.pacienteService.eliminar(this.pacienteAEliminar.id).subscribe({
         next: () => {
           this.cargarPacientes();
           this.mostrarConfirmacion = false;

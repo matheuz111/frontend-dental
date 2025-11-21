@@ -3,7 +3,7 @@ import { CalendarOptions, EventClickArg, DateSelectArg } from '@fullcalendar/cor
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import esLocale from '@fullcalendar/core/locales/es'; // Para español
+import esLocale from '@fullcalendar/core/locales/es'; 
 
 import { CitaService } from '../../../../services/cita.service';
 import { FormularioCitaComponent } from '../../componentes-panel/formulario-cita/formulario-cita';
@@ -21,25 +21,23 @@ export class CalendarioCitasComponent implements OnInit {
   mostrarModalCreacion = false;
   eventosCalendario: any[] = [];
 
-  // Configuración de FullCalendar
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
-    locale: esLocale, // Idioma español
+    locale: esLocale,
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
     weekends: true,
-    editable: false, // No arrastrar por ahora
+    editable: false,
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
-    // Manejadores de eventos
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
-    events: [] // Se llenará dinámicamente
+    events: [] 
   };
 
   constructor(private citaService: CitaService) {}
@@ -51,53 +49,56 @@ export class CalendarioCitasComponent implements OnInit {
   cargarCitas(): void {
     this.citaService.listar().subscribe({
       next: (citas) => {
-        // Transformamos tus citas (backend) al formato de FullCalendar
-        this.eventosCalendario = citas.map(cita => ({
-          id: cita.citaId.toString(),
-          title: `${cita.paciente?.nombre} ${cita.paciente?.apellido} - ${cita.motivo}`,
-          // Combinamos fecha y hora para el inicio: '2023-11-20T14:30:00'
-          start: `${cita.fechaCita}T${cita.horaCita}`, 
-          // Color según estado (opcional)
-          backgroundColor: this.getColorEstado(cita.estado),
-          borderColor: this.getColorEstado(cita.estado),
-          extendedProps: {
-            odontologo: cita.odontologo?.nombre,
-            estado: cita.estado
-          }
-        }));
+        console.log('Citas recibidas del backend:', citas); // Debug para ver estructura
+
+        this.eventosCalendario = citas.map(cita => {
+          // PROTECCIÓN: Verificar que los objetos existan para evitar errores
+          const nombrePaciente = cita.paciente ? `${cita.paciente.nombre} ${cita.paciente.apellido}` : 'Paciente Desconocido';
+          const nombreOdontologo = cita.odontologo ? `${cita.odontologo.nombre} ${cita.odontologo.apellido}` : 'No asignado';
+          
+          // CORRECCIÓN: Usamos cita.id (o fallback seguro si viene undefined)
+          const citaId = cita.id ? cita.id.toString() : 'tmp-' + Math.random();
+
+          return {
+            id: citaId,
+            title: `${nombrePaciente} - ${cita.motivo}`,
+            start: `${cita.fechaCita}T${cita.horaCita}`, 
+            backgroundColor: this.getColorEstado(cita.estado || 'pendiente'),
+            borderColor: this.getColorEstado(cita.estado || 'pendiente'),
+            extendedProps: {
+              odontologo: nombreOdontologo,
+              estado: cita.estado,
+              pacienteCompleto: cita.paciente // Guardamos referencia útil
+            }
+          };
+        });
         
-        // Actualizamos las opciones del calendario
         this.calendarOptions.events = this.eventosCalendario;
       },
       error: (err) => console.error('Error al cargar citas', err)
     });
   }
 
-  // Al hacer clic en un día o hueco vacío
   handleDateSelect(selectInfo: DateSelectArg) {
     this.mostrarModalCreacion = true;
-    
-    // Pequeño timeout para asegurar que el formulario se renderice antes de setear valores
     setTimeout(() => {
       if (this.formularioCita) {
-        // Pre-llenamos la fecha seleccionada en el formulario
         this.formularioCita.formCita.patchValue({
-          fechaCita: selectInfo.startStr.split('T')[0], // Solo la parte YYYY-MM-DD
+          fechaCita: selectInfo.startStr.split('T')[0], 
           horaCita: selectInfo.startStr.includes('T') ? selectInfo.startStr.split('T')[1].substring(0, 5) : ''
         });
       }
     }, 100);
   }
 
-  // Al hacer clic en una cita existente
   handleEventClick(clickInfo: EventClickArg) {
-    alert(`Cita de: ${clickInfo.event.title}\nOdontólogo: ${clickInfo.event.extendedProps['odontologo']}`);
-    // Aquí podrías abrir otro modal para editar/eliminar
+    const props = clickInfo.event.extendedProps;
+    alert(`Cita de: ${clickInfo.event.title}\nOdontólogo: ${props['odontologo']}\nEstado: ${props['estado']}`);
   }
 
   onCitaGuardada(): void {
     this.mostrarModalCreacion = false;
-    this.cargarCitas(); // Recargar para ver la nueva cita
+    this.cargarCitas(); 
     alert('¡Cita agendada con éxito!');
   }
 
@@ -107,10 +108,11 @@ export class CalendarioCitasComponent implements OnInit {
 
   private getColorEstado(estado: string): string {
     switch (estado?.toLowerCase()) {
-      case 'confirmada': return '#198754'; // Verde
-      case 'pendiente': return '#ffc107'; // Amarillo
-      case 'cancelada': return '#dc3545'; // Rojo
-      case 'completada': return '#0d6efd'; // Azul
+      case 'confirmada': return '#198754'; 
+      case 'pendiente': return '#ffc107'; 
+      case 'programada': return '#0dcaf0'; // Nuevo estado de tu backend
+      case 'cancelada': return '#dc3545'; 
+      case 'completada': return '#0d6efd'; 
       default: return '#3788d8';
     }
   }

@@ -1,22 +1,25 @@
 import { Paciente } from './paciente';
 
 export interface Factura {
-    facturaId: number;
-    pacienteId: number;
-    fechaEmision: Date;
+    // CORRECCIÓN: Usamos 'id' para coincidir con el backend
+    id: number; 
+    
+    // Relaciones y datos
+    citaId?: number; // Para enviar al crear
+    paciente?: Paciente; // Para leer al listar
+
+    fechaEmision: string; // Date suele dar problemas en JSON, string es más seguro
     montoTotal: number;
-    // Agregamos 'Anulado' a la lista de posibles estados
     estadoPago: 'Pendiente' | 'Pagado' | 'Parcial' | 'Anulado'; 
     tipoComprobante: 'Boleta' | 'Factura';
     
-    paciente?: Paciente;
     pagos?: Pago[];
 }
 
 export interface Pago {
-    pagoId: number;
-    comprobanteId: number; // Relacion con facturaId
-    fechaPago: Date;
+    id: number;
+    comprobanteId: number;
+    fechaPago: string;
     montoPagado: number;
-    metodoPago?: string; // 'Efectivo', 'Tarjeta', etc.
+    metodoPago?: string;
 }

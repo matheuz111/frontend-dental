@@ -62,14 +62,16 @@ export class BusquedaPacienteComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // Buscar por nombre (filtro local si el backend no tiene endpoint específico)
+      // Buscar por nombre
       this.pacienteService.listar().subscribe({
         next: (lista) => {
           const terminoLower = termino.toLowerCase();
           this.resultados = lista.filter(p => {
             const nombreCompleto = `${p.nombre} ${p.apellido}`.toLowerCase();
-            return nombreCompleto.includes(terminoLower) ||
-                   (p.documentoIdentidad && p.documentoIdentidad.includes(termino));
+            // CORRECCIÓN: Acceder al DNI de forma segura a través de usuario
+            const dni = p.usuario?.documentoIdentidad || '';
+            
+            return nombreCompleto.includes(terminoLower) || dni.includes(termino);
           });
           this.cargando = false;
         },
@@ -84,8 +86,10 @@ export class BusquedaPacienteComponent implements OnInit, OnDestroy {
   seleccionar(paciente: Paciente): void {
     this.pacienteSeleccionado.emit(paciente);
     
-    // Mostrar el paciente seleccionado en el input
-    const textoSeleccion = `${paciente.nombre} ${paciente.apellido} (DNI: ${paciente.documentoIdentidad || 'Sin DNI'})`;
+    // CORRECCIÓN: Acceder al DNI a través de usuario
+    const dni = paciente.usuario?.documentoIdentidad || 'Sin DNI';
+    const textoSeleccion = `${paciente.nombre} ${paciente.apellido} (DNI: ${dni})`;
+    
     this.searchControl.setValue(textoSeleccion, { emitEvent: false });
     
     // Ocultar resultados

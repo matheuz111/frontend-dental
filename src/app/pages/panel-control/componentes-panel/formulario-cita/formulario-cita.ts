@@ -47,7 +47,6 @@ export class FormularioCitaComponent implements OnInit {
     });
   }
 
-  // Método que recibe el paciente desde el componente hijo BusquedaPaciente
   recibirPaciente(paciente: Paciente): void {
     this.pacienteSeleccionado = paciente;
     this.mensajeError = '';
@@ -66,23 +65,28 @@ export class FormularioCitaComponent implements OnInit {
 
     this.cargando = true;
     
-    // Construimos el objeto Cita según tu modelo
+    // Construimos el objeto Cita
     const nuevaCita: Cita = {
-      // El ID lo genera la BD (serial)
-      citaId: 0, 
-      pacienteId: this.pacienteSeleccionado.pacienteId,
+      // CORRECCIÓN AQUÍ: Usamos 'id' en lugar de 'citaId'
+      id: 0, 
+      
+      // Asegúrate de que tu modelo Cita tenga pacienteId y odontologoId definidos como opcionales o obligatorios
+      pacienteId: this.pacienteSeleccionado.id,
       odontologoId: +this.formCita.value.odontologoId,
-      fechaCita: this.formCita.value.fechaCita, // string 'YYYY-MM-DD'
-      horaCita: this.formCita.value.horaCita,   // string 'HH:mm'
+      
+      fechaCita: this.formCita.value.fechaCita,
+      horaCita: this.formCita.value.horaCita,
       motivo: this.formCita.value.motivo,
-      estado: 'Pendiente' // Estado inicial por defecto
+      estado: 'Pendiente'
     };
+
+    console.log('Enviando cita:', nuevaCita);
 
     this.citaService.crear(nuevaCita).subscribe({
       next: (citaCreada) => {
         this.cargando = false;
         this.onGuardar.emit(citaCreada);
-        this.resetearFormulario(); // <--- Ahora sí existe este método
+        this.resetearFormulario(); 
       },
       error: (err) => {
         this.cargando = false;
@@ -94,14 +98,13 @@ export class FormularioCitaComponent implements OnInit {
 
   cancelar(): void {
     this.onCancelar.emit();
-    this.resetearFormulario(); // <--- Llamada al método corregido
+    this.resetearFormulario(); 
   }
 
-  // --- MÉTODO AGREGADO ---
   resetearFormulario(): void {
-    this.formCita.reset();           // Limpia los inputs del reactive form
-    this.pacienteSeleccionado = null; // Deselecciona el paciente
-    this.mensajeError = '';           // Borra mensajes de error previos
-    this.cargando = false;            // Asegura que no quede el spinner pegado
+    this.formCita.reset();           
+    this.pacienteSeleccionado = null; 
+    this.mensajeError = '';           
+    this.cargando = false;            
   }
 }

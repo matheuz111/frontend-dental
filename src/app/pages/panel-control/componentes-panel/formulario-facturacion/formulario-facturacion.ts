@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Factura } from '../../../../core/models/facturacion'; // Ajusta la ruta a tu modelo
+import { Factura } from '../../../../core/models/facturacion';
 import { CitaService } from '../../../../services/cita.service';
 import { Cita } from '../../../../core/models/cita';
 
@@ -11,7 +11,7 @@ import { Cita } from '../../../../core/models/cita';
   standalone: false
 })
 export class FormularioFacturacionComponent implements OnInit {
-  @Input() factura: Factura | null = null; // Si viene, es edición
+  @Input() factura: Factura | null = null;
   @Input() visible: boolean = false;
   
   @Output() onGuardar = new EventEmitter<any>();
@@ -39,18 +39,18 @@ export class FormularioFacturacionComponent implements OnInit {
     if (this.factura) {
       // Modo Edición
       this.form.patchValue({
-        citaId: this.factura.pacienteId, // Ojo: aquí deberías mapear según tu lógica de negocio (cita vs paciente)
+        // CORRECCIÓN: Usamos 'citaId' si existe, o el ID del paciente como fallback temporal
+        // Lo ideal es que tu Factura tenga el objeto 'cita' o 'citaId'
+        citaId: this.factura.citaId || this.factura.paciente?.id, 
         montoTotal: this.factura.montoTotal,
         estadoPago: this.factura.estadoPago,
         tipoComprobante: this.factura.tipoComprobante
       });
-      // Si editas, tal vez bloqueas cambiar la cita/paciente
       this.form.get('citaId')?.disable();
     }
   }
 
   cargarCitas(): void {
-    // Cargar citas para asociar la factura (idealmente solo las que no tienen factura)
     this.citaService.listar().subscribe(citas => {
       this.citasPendientes = citas; 
     });
@@ -63,12 +63,23 @@ export class FormularioFacturacionComponent implements OnInit {
     }
 
     const datos = this.form.getRawValue();
-    this.onGuardar.emit({ ...this.factura, ...datos });
+    
+    const facturaAGuardar = {
+        ...this.factura,
+        ...datos,
+        citaId: Number(datos.citaId)
+    };
+
+    this.onGuardar.emit(facturaAGuardar);
     this.cerrar();
   }
 
   cerrar(): void {
     this.onCancelar.emit();
-    this.form.reset();
+    this.form.reset({
+      estadoPago: 'Pendiente',
+      tipoComprobante: 'Boleta',
+      montoTotal: 0
+    });
   }
 }

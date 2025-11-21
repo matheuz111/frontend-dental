@@ -12,6 +12,10 @@ import { BusquedaPacienteComponent } from './componentes-panel/busqueda-paciente
 import { DialogoConfirmacionComponent } from './componentes-panel/dialogo-confirmacion/dialogo-confirmacion';
 import { DialogoPrevisualizacionComponent } from './componentes-panel/dialogo-previsualizacion/dialogo-previsualizacion';
 
+// === IMPORTA TU TABLA AQUÍ ===
+// Nota: Verifica la ruta. Basado en tus archivos parece ser esta:
+import { TablaGenerica } from '../../shared/tabla-generica/tabla-generica'; 
+
 // === FORMULARIOS ===
 import { FormularioCitaComponent } from './componentes-panel/formulario-cita/formulario-cita';
 import { FormularioConsultaComponent } from './componentes-panel/formulario-consulta/formulario-consulta';
@@ -31,9 +35,6 @@ import { MiPerfilComponent } from './paginas-panel/mi-perfil/mi-perfil';
 import { HistoriaClinicaComponent } from './paginas-panel/historia-clinica/historia-clinica';
 import { GestionConfiguracionComponent } from './paginas-panel/gestion-configuracion/gestion-configuracion';
 
-// === SHARED (Si TablaGenerica NO es standalone) ===
-// import { TablaGenericaComponent } from '../../shared/tabla-generica/tabla-generica';
-
 @NgModule({
   declarations: [
     // Componentes
@@ -41,6 +42,9 @@ import { GestionConfiguracionComponent } from './paginas-panel/gestion-configura
     BusquedaPacienteComponent,
     DialogoConfirmacionComponent,
     DialogoPrevisualizacionComponent,
+    
+    // AÑADE LA TABLA AQUÍ
+    TablaGenerica, 
     
     // Formularios
     FormularioCitaComponent,
@@ -62,14 +66,12 @@ import { GestionConfiguracionComponent } from './paginas-panel/gestion-configura
     GestionConfiguracionComponent
   ],
   imports: [
-    CommonModule,
+    CommonModule, // Esto habilita los pipes date y currency para la Tabla
     RouterModule,
     ReactiveFormsModule,
     FormsModule,
     FullCalendarModule,
     PanelControlRoutingModule
-    // Si TablaGenerica es standalone:
-    // TablaGenericaComponent
   ]
 })
 export class PanelControlModule { }

@@ -2,13 +2,14 @@
 
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http'; 
-import { FormsModule } from '@angular/forms'; // Puedes dejarlo si otros componentes lo usan
+import { FormsModule } from '@angular/forms'; 
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; // 1. Importar HTTP_INTERCEPTORS
 
 import { AppRoutingModule } from './app-routing.module';
 import { App } from './app';
 
-// NO IMPORTES LoginComponent aquí
+// 2. Importar tu interceptor
+import { JwtInterceptor } from './core/interceptors/jwt-interceptor';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,15 @@ import { App } from './app';
     HttpClientModule,
     FormsModule
   ],
-  providers: [],
+  providers: [
+    // 3. REGISTRAR EL INTERCEPTOR AQUÍ
+    // Esto le dice a Angular: "Usa JwtInterceptor para todas las peticiones HTTP"
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [App]
 })
 export class AppModule { }
