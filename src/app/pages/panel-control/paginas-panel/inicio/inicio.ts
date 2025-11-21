@@ -7,7 +7,8 @@ import { Cita } from '../../../../core/models/cita';
 @Component({
   selector: 'app-inicio',
   templateUrl: './inicio.html',
-  styleUrls: ['./inicio.css']
+  styleUrls: ['./inicio.css'],
+  standalone: false
 })
 export class InicioComponent implements OnInit {
   

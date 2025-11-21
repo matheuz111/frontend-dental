@@ -9,7 +9,8 @@ import { Cita } from '../../../../core/models/cita';
 @Component({
   selector: 'app-formulario-cita',
   templateUrl: './formulario-cita.html',
-  styleUrls: ['./formulario-cita.css']
+  styleUrls: ['./formulario-cita.css'],
+  standalone: false
 })
 export class FormularioCitaComponent implements OnInit {
   
@@ -81,7 +82,7 @@ export class FormularioCitaComponent implements OnInit {
       next: (citaCreada) => {
         this.cargando = false;
         this.onGuardar.emit(citaCreada);
-        this.resetearFormulario();
+        this.resetearFormulario(); // <--- Ahora sí existe este método
       },
       error: (err) => {
         this.cargando = false;
@@ -93,6 +94,14 @@ export class FormularioCitaComponent implements OnInit {
 
   cancelar(): void {
     this.onCancelar.emit();
-    this.resetearFormulario();
+    this.resetearFormulario(); // <--- Llamada al método corregido
+  }
+
+  // --- MÉTODO AGREGADO ---
+  resetearFormulario(): void {
+    this.formCita.reset();           // Limpia los inputs del reactive form
+    this.pacienteSeleccionado = null; // Deselecciona el paciente
+    this.mensajeError = '';           // Borra mensajes de error previos
+    this.cargando = false;            // Asegura que no quede el spinner pegado
   }
 }

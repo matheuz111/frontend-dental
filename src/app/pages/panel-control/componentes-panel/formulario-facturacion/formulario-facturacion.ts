@@ -7,7 +7,8 @@ import { Cita } from '../../../../core/models/cita';
 @Component({
   selector: 'app-formulario-facturacion',
   templateUrl: './formulario-facturacion.html',
-  styleUrls: ['./formulario-facturacion.css']
+  styleUrls: ['./formulario-facturacion.css'],
+  standalone: false
 })
 export class FormularioFacturacionComponent implements OnInit {
   @Input() factura: Factura | null = null; // Si viene, es edición

@@ -5,7 +5,8 @@ import { Odontologo } from '../../../../core/models/odontologo';
 @Component({
   selector: 'app-formulario-odontologo',
   templateUrl: './formulario-odontologo.html',
-  styleUrls: ['./formulario-odontologo.css']
+  styleUrls: ['./formulario-odontologo.css'],
+  standalone: false
 })
 export class FormularioOdontologoComponent implements OnInit {
   @Input() odontologo: Odontologo | null = null; // Si es null, es creación

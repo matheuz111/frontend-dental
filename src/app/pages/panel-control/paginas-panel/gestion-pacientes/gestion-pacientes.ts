@@ -1,12 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { PacienteService } from '../../../../services/paciente.service';
 import { Paciente } from '../../../../core/models/paciente';
-import { ColumnConfig } from '../../paginas-panel/gestion-facturacion/gestion-facturacion';
+import { ColumnConfig } from '../../../../shared/tabla-generica/tabla-generica';
 
 @Component({
   selector: 'app-gestion-pacientes',
   templateUrl: './gestion-pacientes.html',
-  styleUrls: ['./gestion-pacientes.css']
+  styleUrls: ['./gestion-pacientes.css'],
+  standalone: false
 })
 export class GestionPacientesComponent implements OnInit {
   

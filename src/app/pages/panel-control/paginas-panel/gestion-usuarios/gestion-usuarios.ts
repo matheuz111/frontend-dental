@@ -1,12 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { UsuarioService } from '../../../../services/usuario.service';
 import { UserProfile } from '../../../../core/models/usuario';
-import { ColumnConfig } from '../../paginas-panel/gestion-facturacion/gestion-facturacion';
+// CORRECCIÓN 1: Importar ColumnConfig desde la ubicación correcta (shared)
+import { ColumnConfig } from '../../../../shared/tabla-generica/tabla-generica';
 
 @Component({
   selector: 'app-gestion-usuarios',
   templateUrl: './gestion-usuarios.html',
-  styleUrls: ['./gestion-usuarios.css']
+  styleUrls: ['./gestion-usuarios.css'],
+  standalone: false // CORRECCIÓN 2: Necesario por estar en un NgModule
 })
 export class GestionUsuariosComponent implements OnInit {
   
@@ -61,9 +63,13 @@ export class GestionUsuariosComponent implements OnInit {
   // --- Guardado ---
 
   guardarUsuario(datos: any): void {
-    if (datos.id) { // O datos.usuarioId según tu modelo
+    // CORRECCIÓN 3: Verificar 'usuarioId' en lugar de 'id' para consistencia con el modelo
+    // (Si tu formulario envía 'id', usa: const id = datos.usuarioId || datos.id;)
+    const id = datos.usuarioId || datos.id;
+
+    if (id) { 
       // Actualizar
-      this.usuarioService.actualizar(datos.id, datos).subscribe(() => {
+      this.usuarioService.actualizar(id, datos).subscribe(() => {
         this.cargarUsuarios();
         this.mostrarFormulario = false;
       });
@@ -77,8 +83,9 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   confirmarEliminacion(): void {
-    if (this.usuarioAEliminar && this.usuarioAEliminar.id) { // Verifica si tu campo ID es 'id' o 'usuarioId'
-      this.usuarioService.eliminar(this.usuarioAEliminar.id).subscribe(() => {
+    // CORRECCIÓN 4 (El error reportado): Usar .usuarioId que es lo que existe en UserProfile
+    if (this.usuarioAEliminar && this.usuarioAEliminar.usuarioId) { 
+      this.usuarioService.eliminar(this.usuarioAEliminar.usuarioId).subscribe(() => {
         this.cargarUsuarios();
         this.mostrarConfirmacion = false;
         this.usuarioAEliminar = null;

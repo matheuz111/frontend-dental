@@ -36,6 +36,7 @@ export interface UserProfile {
     telefono?: string;
     rol: string;                  // nombre_rol desde JOIN
     permisos?: string[];
+    fechaRegistro?: Date | string;
 }
 
 export interface ChangePasswordPayload {

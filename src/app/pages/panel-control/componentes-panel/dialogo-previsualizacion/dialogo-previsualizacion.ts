@@ -10,7 +10,8 @@ export interface PrevisualizacionData {
 @Component({
   selector: 'app-dialogo-previsualizacion',
   templateUrl: './dialogo-previsualizacion.html',
-  styleUrls: ['./dialogo-previsualizacion.css']
+  styleUrls: ['./dialogo-previsualizacion.css'],
+  standalone: false
 })
 export class DialogoPrevisualizacionComponent {
   @Input() visible: boolean = false; // Controla si se muestra el modal

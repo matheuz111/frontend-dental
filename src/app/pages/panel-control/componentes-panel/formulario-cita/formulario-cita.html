@@ -64,4 +64,20 @@
       </div>
 
       <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-        <button type="button" class="btn btn-outline-secondary
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="cargando || formCita.invalid || !pacienteSeleccionado">
+          <ng-container *ngIf="!cargando; else loadingTemplate">
+            <i class="fas fa-save me-2"></i>Guardar Cita
+          </ng-container>
+          <ng-template #loadingTemplate>
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Guardando...
+          </ng-template>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

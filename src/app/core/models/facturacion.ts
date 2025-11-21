@@ -5,7 +5,8 @@ export interface Factura {
     pacienteId: number;
     fechaEmision: Date;
     montoTotal: number;
-    estadoPago: 'Pendiente' | 'Pagado' | 'Parcial';
+    // Agregamos 'Anulado' a la lista de posibles estados
+    estadoPago: 'Pendiente' | 'Pagado' | 'Parcial' | 'Anulado'; 
     tipoComprobante: 'Boleta' | 'Factura';
     
     paciente?: Paciente;

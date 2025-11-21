@@ -1,12 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { OdontologoService } from '../../../../services/odontologo.service';
 import { Odontologo } from '../../../../core/models/odontologo';
-import { ColumnConfig } from '../../paginas-panel/gestion-facturacion/gestion-facturacion'; // O importa la interfaz de donde la tengas
+// CORRECCIÓN 1: Importar ColumnConfig desde la ubicación correcta (shared)
+import { ColumnConfig } from '../../../../shared/tabla-generica/tabla-generica';
 
 @Component({
   selector: 'app-gestion-odontologos',
   templateUrl: './gestion-odontologos.html',
-  styleUrls: ['./gestion-odontologos.css']
+  styleUrls: ['./gestion-odontologos.css'],
+  standalone: false // CORRECCIÓN 2: Necesario para que funcione en tu PanelControlModule
 })
 export class GestionOdontologosComponent implements OnInit {
   
@@ -78,7 +80,7 @@ export class GestionOdontologosComponent implements OnInit {
 
   confirmarEliminacion(): void {
     if (this.odontologoAEliminar && this.odontologoAEliminar.odontologoId) {
-      // Nota: Asegúrate de tener el método eliminar en tu servicio, si no, agrégalo.
+      // Nota: Asegúrate de tener el método eliminar en tu servicio.
       // this.odontologoService.eliminar(this.odontologoAEliminar.odontologoId).subscribe(...)
       console.log('Eliminando a:', this.odontologoAEliminar.nombre);
       

@@ -11,7 +11,8 @@ import { FormularioCitaComponent } from '../../componentes-panel/formulario-cita
 @Component({
   selector: 'app-calendario-citas',
   templateUrl: './calendario-citas.html',
-  styleUrls: ['./calendario-citas.css']
+  styleUrls: ['./calendario-citas.css'],
+  standalone: false
 })
 export class CalendarioCitasComponent implements OnInit {
   

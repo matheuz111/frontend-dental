@@ -7,7 +7,8 @@ import { Paciente } from '../../../../core/models/paciente';
 @Component({
   selector: 'app-busqueda-paciente',
   templateUrl: './busqueda-paciente.html',
-  styleUrls: ['./busqueda-paciente.css']
+  styleUrls: ['./busqueda-paciente.css'],
+  standalone: false
 })
 export class BusquedaPacienteComponent implements OnInit, OnDestroy {
   

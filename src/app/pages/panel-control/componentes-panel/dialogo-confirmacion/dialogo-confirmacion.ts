@@ -3,7 +3,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
   selector: 'app-dialogo-confirmacion',
   templateUrl: './dialogo-confirmacion.html',
-  styleUrls: ['./dialogo-confirmacion.css']
+  styleUrls: ['./dialogo-confirmacion.css'],
+  standalone: false
 })
 export class DialogoConfirmacionComponent {
   @Input() titulo: string = 'Confirmar Acción';

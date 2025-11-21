@@ -5,7 +5,8 @@ import { Paciente } from '../../../../core/models/paciente';
 @Component({
   selector: 'app-formulario-paciente',
   templateUrl: './formulario-paciente.html',
-  styleUrls: ['./formulario-paciente.css']
+  styleUrls: ['./formulario-paciente.css'],
+  standalone: false
 })
 export class FormularioPacienteComponent implements OnInit {
   @Input() paciente: Paciente | null = null; // Si es null, es nuevo

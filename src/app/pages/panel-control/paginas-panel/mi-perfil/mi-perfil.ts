@@ -7,7 +7,8 @@ import { AutenticacionService } from '../../../../services/autenticacion.service
 @Component({
   selector: 'app-mi-perfil',
   templateUrl: './mi-perfil.html',
-  styleUrls: ['./mi-perfil.css']
+  styleUrls: ['./mi-perfil.css'],
+  standalone: false
 })
 export class MiPerfilComponent implements OnInit {
   

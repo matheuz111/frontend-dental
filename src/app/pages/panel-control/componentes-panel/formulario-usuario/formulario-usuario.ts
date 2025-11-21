@@ -6,7 +6,8 @@ import { Rol } from '../../../../core/models/rol';
 @Component({
   selector: 'app-formulario-usuario',
   templateUrl: './formulario-usuario.html',
-  styleUrls: ['./formulario-usuario.css']
+  styleUrls: ['./formulario-usuario.css'],
+  standalone: false
 })
 export class FormularioUsuarioComponent implements OnInit {
   @Input() usuario: UserProfile | null = null; // Si es null, modo creación

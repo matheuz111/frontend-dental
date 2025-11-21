@@ -5,7 +5,8 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.html',
-  styleUrls: ['./layout.css']
+  styleUrls: ['./layout.css'],
+  standalone: false
 })
 export class LayoutComponent {
   private authService = inject(AutenticacionService);

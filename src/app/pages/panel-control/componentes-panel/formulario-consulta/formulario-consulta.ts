@@ -6,7 +6,8 @@ import { Odontologo } from '../../../../core/models/odontologo';
 @Component({
   selector: 'app-formulario-consulta',
   templateUrl: './formulario-consulta.html',
-  styleUrls: ['./formulario-consulta.css']
+  styleUrls: ['./formulario-consulta.css'],
+  standalone: false
 })
 export class FormularioConsultaComponent implements OnInit {
   @Input() visible: boolean = false;

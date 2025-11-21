@@ -7,7 +7,8 @@ import { ChangePasswordPayload } from '../../../../core/models/usuario';
 @Component({
   selector: 'app-gestion-configuracion',
   templateUrl: './gestion-configuracion.html',
-  styleUrls: ['./gestion-configuracion.css']
+  styleUrls: ['./gestion-configuracion.css'],
+  standalone: false
 })
 export class GestionConfiguracionComponent implements OnInit {
   private fb = inject(FormBuilder);
