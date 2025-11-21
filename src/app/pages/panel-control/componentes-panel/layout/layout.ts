@@ -1,11 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AutenticacionService } from '../../../../services/autenticacion.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
-  imports: [],
   templateUrl: './layout.html',
-  styleUrl: './layout.css',
+  styleUrls: ['./layout.css']
 })
-export class Layout {
+export class LayoutComponent {
+  private authService = inject(AutenticacionService);
+  private router = inject(Router);
 
+  // Controla si el sidebar está expandido o colapsado
+  sidebarAbierto: boolean = true;
+
+  // Obtenemos el rol para mostrarlo en la barra superior
+  rolUsuario = this.authService.rolUsuario; 
+
+  toggleSidebar(): void {
+    this.sidebarAbierto = !this.sidebarAbierto;
+  }
+
+  cerrarSesion(): void {
+    this.authService.logout();
+    // La redirección ya la maneja el servicio, pero por seguridad:
+    this.router.navigate(['/authentication/login']);
+  }
 }

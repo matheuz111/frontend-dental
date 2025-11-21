@@ -139,4 +139,9 @@ export class AutenticacionService {
       return true;
     }
   }
+
+  recuperarContrasena(email: string): Observable<any> {
+    // Ajusta el endpoint '/recuperar-contrasena' según tu backend real
+    return this.http.post(`${this.apiUrl}/recuperar-contrasena`, { email });
+  }
 }

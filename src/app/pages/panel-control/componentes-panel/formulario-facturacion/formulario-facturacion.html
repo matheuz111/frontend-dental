@@ -1,1 +1,63 @@
-<p>formulario-facturacion works!</p>
+<div class="modal-backdrop fade show" *ngIf="visible"></div>
+
+<div class="modal fade show d-block" *ngIf="visible" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">{{ factura ? 'Editar' : 'Nueva' }} Factura</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrar()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <form [formGroup]="form">
+          
+          <div class="mb-3">
+            <label class="form-label">Cita / Paciente</label>
+            <select class="form-select" formControlName="citaId" [class.is-invalid]="form.get('citaId')?.invalid && form.get('citaId')?.touched">
+              <option value="">Seleccione una cita...</option>
+              <option *ngFor="let cita of citasPendientes" [value]="cita.citaId">
+                {{ cita.fechaCita | date:'dd/MM' }} - {{ cita.paciente?.nombre }} {{ cita.paciente?.apellido }}
+              </option>
+            </select>
+            <div class="invalid-feedback">Requerido</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Monto Total</label>
+            <div class="input-group">
+              <span class="input-group-text">S/</span>
+              <input type="number" class="form-control" formControlName="montoTotal">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Estado</label>
+              <select class="form-select" formControlName="estadoPago">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Pagado">Pagado</option>
+                <option value="Anulado">Anulado</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tipo</label>
+              <select class="form-select" formControlName="tipoComprobante">
+                <option value="Boleta">Boleta</option>
+                <option value="Factura">Factura</option>
+              </select>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrar()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="guardar()" [disabled]="form.invalid">
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

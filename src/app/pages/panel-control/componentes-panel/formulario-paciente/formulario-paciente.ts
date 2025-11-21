@@ -1,11 +1,64 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Paciente } from '../../../../core/models/paciente';
 
 @Component({
   selector: 'app-formulario-paciente',
-  imports: [],
   templateUrl: './formulario-paciente.html',
-  styleUrl: './formulario-paciente.css',
+  styleUrls: ['./formulario-paciente.css']
 })
-export class FormularioPaciente {
+export class FormularioPacienteComponent implements OnInit {
+  @Input() paciente: Paciente | null = null; // Si es null, es nuevo
+  @Input() visible: boolean = false;
+  
+  @Output() onGuardar = new EventEmitter<Paciente>();
+  @Output() onCancelar = new EventEmitter<void>();
 
+  form: FormGroup;
+  private fb = inject(FormBuilder);
+
+  constructor() {
+    this.form = this.fb.group({
+      nombre: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+      apellido: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+      // El documento de identidad suele ser único y vital
+      documentoIdentidad: ['', [Validators.required, Validators.minLength(8)]], 
+      telefono: ['', [Validators.pattern(/^[0-9]{9,15}$/)]],
+      email: ['', [Validators.email]], // Opcional en tu BD, pero validamos formato si se escribe
+      fechaNacimiento: [''],
+      genero: [''],
+      direccion: [''],
+      alergias: ['']
+    });
+  }
+
+  ngOnInit(): void {
+    if (this.paciente) {
+      this.form.patchValue(this.paciente);
+      // Si quisieras bloquear el DNI en edición:
+      // this.form.get('documentoIdentidad')?.disable();
+    }
+  }
+
+  guardar(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const datos = this.form.getRawValue();
+    // Combinamos datos existentes (id, usuarioId) con los del form
+    const pacienteFinal: Paciente = { 
+      ...this.paciente, 
+      ...datos 
+    };
+
+    this.onGuardar.emit(pacienteFinal);
+    this.cerrar();
+  }
+
+  cerrar(): void {
+    this.onCancelar.emit();
+    this.form.reset();
+  }
 }

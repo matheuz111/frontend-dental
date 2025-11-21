@@ -1,18 +1,26 @@
-// src/app/app-routing.module.ts
-
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './authentication/login/login';
+// Importa tus guards
+import { authGuard } from './core/guards/auth.guard.js';
+import { rolGuard } from './core/guards/rol.guard.js';
+import { loginGuard } from './core/guards/login.guard.js';
 
 const routes: Routes = [
-  // Redirige al login si la ruta está vacía
-  { path: '', redirectTo: '/login', pathMatch: 'full' }, 
+  { path: '', redirectTo: 'authentication/login', pathMatch: 'full' },
   
-  // Ruta para el login
-  { path: 'login', component: LoginComponent },
-  
-  // (Aquí irán tus otras rutas, ej: dashboard)
-  // { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] }
+  {
+    path: 'authentication',
+    loadChildren: () => import('./authentication/authentication.module.js').then(m => m.AuthenticationModule),
+    canActivate: [loginGuard] 
+  },
+  {
+    path: 'panel',
+    // Carga perezosa del módulo del panel
+    loadChildren: () => import('./pages/panel-control/panel-control.module').then(m => m.PanelControlModule),
+    canActivate: [authGuard, rolGuard] // Protegido
+  },
+  // ... ruta portal ...
+  { path: '**', redirectTo: 'authentication/login' }
 ];
 
 @NgModule({
