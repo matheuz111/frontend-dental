@@ -1,27 +1,51 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+<div class="busqueda-paciente-container mb-3">
+  <label class="form-label fw-semibold">Buscar Paciente</label>
+  
+  <div class="input-group">
+    <span class="input-group-text bg-white">
+      <i class="fas fa-search text-muted"></i>
+    </span>
+    <input 
+      type="text" 
+      class="form-control" 
+      [formControl]="searchControl"
+      placeholder="Buscar por DNI o Nombre (mínimo 3 caracteres)"
+      autocomplete="off">
+    <button class="btn btn-outline-secondary" type="button" *ngIf="searchControl.value" (click)="searchControl.setValue('')">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
 
-@Component({
-  selector: 'app-dialogo-confirmacion',
-  templateUrl: './dialogo-confirmacion.html',
-  styleUrls: ['./dialogo-confirmacion.css']
-})
-export class DialogoConfirmacionComponent {
-  @Input() titulo: string = 'Confirmar Acción';
-  @Input() mensaje: string = '¿Estás seguro de realizar esta acción?';
-  @Input() textoConfirmar: string = 'Sí, confirmar';
-  @Input() textoCancelar: string = 'Cancelar';
-  @Input() visible: boolean = false; // Controla si se muestra o no
+  <!-- Loader mientras busca -->
+  <div *ngIf="cargando" class="text-center mt-2">
+    <div class="spinner-border spinner-border-sm text-primary" role="status">
+      <span class="visually-hidden">Buscando...</span>
+    </div>
+    <small class="text-muted ms-2">Buscando pacientes...</small>
+  </div>
 
-  @Output() onConfirmar = new EventEmitter<void>();
-  @Output() onCancelar = new EventEmitter<void>();
+  <!-- Resultados de búsqueda -->
+  <div *ngIf="resultados.length > 0 && !cargando" class="list-group mt-2 shadow-sm" style="max-height: 300px; overflow-y: auto;">
+    <button 
+      type="button"
+      class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+      *ngFor="let paciente of resultados"
+      (click)="seleccionar(paciente)">
+      <div>
+        <strong>{{ paciente.nombre }} {{ paciente.apellido }}</strong>
+        <br>
+        <small class="text-muted">
+          DNI: {{ paciente.documentoIdentidad || 'Sin DNI' }} | 
+          Tel: {{ paciente.telefono || 'Sin teléfono' }}
+        </small>
+      </div>
+      <i class="fas fa-chevron-right text-muted"></i>
+    </button>
+  </div>
 
-  confirmar(): void {
-    this.onConfirmar.emit();
-    this.visible = false;
-  }
-
-  cancelar(): void {
-    this.onCancelar.emit();
-    this.visible = false;
-  }
-}
+  <!-- Mensaje: No hay resultados -->
+  <div *ngIf="busquedaRealizada && resultados.length === 0 && !cargando" class="alert alert-info mt-2 mb-0">
+    <i class="fas fa-info-circle me-2"></i>
+    No se encontraron pacientes con ese criterio.
+  </div>
+</div>

@@ -1,20 +1,28 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common'; // <--- Soluciona el error de *ngIf y *ngFor
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // <--- Soluciona el error de [formGroup]
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import { RouterModule } from '@angular/router';
 
-import { PanelControlRoutingModule } from '../panel-control/panel-control.routes';
+import { PanelControlRoutingModule } from './panel-control-routing.module';
 
-// Componentes
+// === COMPONENTES REUTILIZABLES ===
 import { LayoutComponent } from './componentes-panel/layout/layout';
-import { BusquedaPacienteComponent } from './componentes-panel/busqueda-paciente/busqueda-paciente'; // <--- Soluciona 'app-busqueda-paciente is not a known element'
+import { BusquedaPacienteComponent } from './componentes-panel/busqueda-paciente/busqueda-paciente';
 import { DialogoConfirmacionComponent } from './componentes-panel/dialogo-confirmacion/dialogo-confirmacion';
 import { DialogoPrevisualizacionComponent } from './componentes-panel/dialogo-previsualizacion/dialogo-previsualizacion';
-import { FormularioCitaComponent } from './componentes-panel/formulario-cita/formulario-cita';
 
-// Páginas
-import { CalendarioCitasComponent } from './paginas-panel/calendario-citas/calendario-citas';
+// === FORMULARIOS ===
+import { FormularioCitaComponent } from './componentes-panel/formulario-cita/formulario-cita';
+import { FormularioConsultaComponent } from './componentes-panel/formulario-consulta/formulario-consulta';
+import { FormularioFacturacionComponent } from './componentes-panel/formulario-facturacion/formulario-facturacion';
+import { FormularioOdontologoComponent } from './componentes-panel/formulario-odontologo/formulario-odontologo';
+import { FormularioPacienteComponent } from './componentes-panel/formulario-paciente/formulario-paciente';
+import { FormularioUsuarioComponent } from './componentes-panel/formulario-usuario/formulario-usuario';
+
+// === PÁGINAS ===
 import { InicioComponent } from './paginas-panel/inicio/inicio';
+import { CalendarioCitasComponent } from './paginas-panel/calendario-citas/calendario-citas';
 import { GestionPacientesComponent } from './paginas-panel/gestion-pacientes/gestion-pacientes';
 import { GestionOdontologosComponent } from './paginas-panel/gestion-odontologos/gestion-odontologos';
 import { GestionUsuariosComponent } from './paginas-panel/gestion-usuarios/gestion-usuarios';
@@ -23,27 +31,28 @@ import { MiPerfilComponent } from './paginas-panel/mi-perfil/mi-perfil';
 import { HistoriaClinicaComponent } from './paginas-panel/historia-clinica/historia-clinica';
 import { GestionConfiguracionComponent } from './paginas-panel/gestion-configuracion/gestion-configuracion';
 
+// === SHARED (Si TablaGenerica NO es standalone) ===
+// import { TablaGenericaComponent } from '../../shared/tabla-generica/tabla-generica';
+
 @NgModule({
   declarations: [
+    // Componentes
     LayoutComponent,
-    BusquedaPacienteComponent, // <--- ¡Debe estar aquí!
+    BusquedaPacienteComponent,
     DialogoConfirmacionComponent,
     DialogoPrevisualizacionComponent,
-    FormularioCitaComponent,,
-    GestionFacturacionComponent, // Declarar página
+    
+    // Formularios
+    FormularioCitaComponent,
     FormularioConsultaComponent,
-    FormularioFacturacionComponent, // Declarar formulario
-    TablaGenericaComponent, // Declarar tabla si es parte de este módulo o importarla si es standalone
-    FormularioOdontologoComponent, // <--- Agregar a declarations
-    GestionOdontologosComponent,    // <--- Verificar que esté aquí
-    GestionPacientesComponent,   // <--- Agregar aquí
-    FormularioPacienteComponent, // <--- Agregar aquí
-    FormularioUsuarioComponent, // <--- Agregar
-    GestionUsuariosComponent,   // <--- Agregar/Verificar
-    HistoriaClinicaComponent,
+    FormularioFacturacionComponent,
+    FormularioOdontologoComponent,
+    FormularioPacienteComponent,
+    FormularioUsuarioComponent,
+    
     // Páginas
-    CalendarioCitasComponent,
     InicioComponent,
+    CalendarioCitasComponent,
     GestionPacientesComponent,
     GestionOdontologosComponent,
     GestionUsuariosComponent,
@@ -53,14 +62,14 @@ import { GestionConfiguracionComponent } from './paginas-panel/gestion-configura
     GestionConfiguracionComponent
   ],
   imports: [
-    CommonModule,        // Vital para directivas de Angular
-    ReactiveFormsModule, // Vital para tus formularios
+    CommonModule,
+    RouterModule,
+    ReactiveFormsModule,
     FormsModule,
-    PanelControlRoutingModule,
-    FullCalendarModule
-  ],
-  exports: [
-    FormularioCitaComponent // Opcional, solo si lo usas fuera de este módulo
+    FullCalendarModule,
+    PanelControlRoutingModule
+    // Si TablaGenerica es standalone:
+    // TablaGenericaComponent
   ]
 })
 export class PanelControlModule { }
