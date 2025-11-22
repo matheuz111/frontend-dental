@@ -9,13 +9,13 @@ export const loginGuard: CanActivateFn = (route, state) => {
   if (authService.estaLogueado()) {
     const rol = authService.rolUsuario();
     
-    // Redirigir inteligentemente según el rol
-    if (rol?.toUpperCase() === 'PACIENTE') {
+    // CORRECCIÓN: Usamos 'ROLE_PACIENTE'
+    if (rol === 'ROLE_PACIENTE') {
       return router.createUrlTree(['/portal/inicio']);
     } else {
       return router.createUrlTree(['/panel/inicio']);
     }
   }
 
-  return true; // Si NO está logueado, deja ver el login
+  return true; // Si no está logueado, permite ver el login
 };

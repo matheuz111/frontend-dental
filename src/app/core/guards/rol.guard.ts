@@ -6,14 +6,14 @@ export const rolGuard: CanActivateFn = (route, state) => {
   const authService = inject(AutenticacionService);
   const router = inject(Router);
 
-  // Al ser un Signal, lo ejecutamos como función () para obtener el valor
   const rol = authService.rolUsuario(); 
 
-  // Si el rol existe y NO es PACIENTE, permite el acceso (es Admin, Médico, etc.)
-  if (rol && rol !== 'PACIENTE') {
+  // CORRECCIÓN: Comprobamos contra 'ROLE_PACIENTE'
+  // Si tiene rol y NO es paciente, puede entrar al Panel Administrativo
+  if (rol && rol !== 'ROLE_PACIENTE') {
     return true;
   }
 
-  // Si es PACIENTE o no tiene rol, lo mandamos al portal de pacientes
+  // Si es paciente o no tiene rol, lo mandamos a su portal
   return router.createUrlTree(['/portal/inicio']);
 };

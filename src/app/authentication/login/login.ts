@@ -12,18 +12,14 @@ import {
 } from '@angular/forms'; 
 import { Router, RouterModule } from '@angular/router';
 import { AutenticacionService } from '../../services/autenticacion.service';
+import { finalize } from 'rxjs';
 
-// Validador personalizado para comparar contraseñas
 export function passwordMatcherValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const formGroup = control as FormGroup;
     const password = formGroup.get('password');
     const confirmarPassword = formGroup.get('confirmarPassword');
-
-    if (!password || !confirmarPassword || !confirmarPassword.dirty) {
-      return null;
-    }
-
+    if (!password || !confirmarPassword || !confirmarPassword.dirty) return null;
     return password.value !== confirmarPassword.value ? { passwordMismatch: true } : null;
   };
 }
@@ -50,30 +46,16 @@ export class LoginComponent implements OnInit {
     private authService: AutenticacionService,
     private router: Router
   ) {
-    // Formulario de Login
     this.formularioLogin = this.fb.group({
       documentoIdentidad: ['', [Validators.required]], 
       password: ['', [Validators.required]]
     });
 
-    // Formulario de Registro
     this.formularioRegistro = this.fb.group({
         nombre: ['', [Validators.required, Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$')]],
         apellido: ['', [Validators.required, Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$')]],
-        // Validaciones estrictas para DNI (8 dígitos)
-        documentoIdentidad: ['', [
-          Validators.required, 
-          Validators.minLength(8), 
-          Validators.maxLength(8), 
-          Validators.pattern('^[0-9]*$')
-        ]],
-        // Validaciones estrictas para Teléfono (9 dígitos)
-        telefono: ['', [
-          Validators.required, 
-          Validators.minLength(9), 
-          Validators.maxLength(9), 
-          Validators.pattern('^[0-9]*$')
-        ]],
+        documentoIdentidad: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(8), Validators.pattern('^[0-9]*$')]],
+        telefono: ['', [Validators.required, Validators.minLength(9), Validators.maxLength(9), Validators.pattern('^[0-9]*$')]],
         email: ['', [Validators.required, Validators.email]],
         direccion: ['', [Validators.required]],
         fechaNacimiento: ['', [Validators.required]],
@@ -105,75 +87,75 @@ export class LoginComponent implements OnInit {
 
   enviarFormulario(): void {
     this.mensajeError.set('');
-    this.cargando.set(true);
-
-    const manejarRedireccion = () => {
-      const rol = this.authService.rolUsuario();
-      if (rol === 'ROL_PACIENTE') {
-        this.router.navigate(['/portal-paciente']);
-      } else if (rol === 'ROL_ADMIN' || rol === 'ROL_ODONTOLOGO') {
-        this.router.navigate(['/panel-admin']);
-      } else {
-        this.router.navigate(['/']);
-      }
-    };
-
+    
     if (this.modo() === 'login') {
       if (this.formularioLogin.invalid) {
         this.formularioLogin.markAllAsTouched();
-        this.cargando.set(false);
         return;
       }
       
+      this.cargando.set(true);
       const { documentoIdentidad, password } = this.formularioLogin.value;
       
-      this.authService.login(documentoIdentidad, password).subscribe({
-        next: () => {
-          if (this.recordarme) {
-            localStorage.setItem('documentoRecordado', documentoIdentidad);
-            localStorage.setItem('recordarme', JSON.stringify(true));
-          } else {
-            localStorage.removeItem('documentoRecordado');
-            localStorage.removeItem('recordarme');
-          }
-          manejarRedireccion();
-        },
-        error: (err) => {
-          console.error(err);
-          this.mensajeError.set(err.message || 'Credenciales incorrectas o error de conexión.');
-          this.cargando.set(false);
-        }
-      });
+      this.authService.login(documentoIdentidad, password)
+        .pipe(finalize(() => this.cargando.set(false)))
+        .subscribe({
+          next: (response) => {
+            if (this.recordarme) {
+              localStorage.setItem('documentoRecordado', documentoIdentidad);
+              localStorage.setItem('recordarme', JSON.stringify(true));
+            } else {
+              localStorage.removeItem('documentoRecordado');
+              localStorage.removeItem('recordarme');
+            }
 
-    } else { // Modo Registro
+            const rol = response.rol;
+            console.log('Login correcto. Rol:', rol);
+
+            // --- CORRECCIÓN AQUÍ: Usamos 'ROLE_' con E ---
+            if (rol === 'ROLE_PACIENTE') {
+              this.router.navigate(['/portal/inicio']); // Ajuste ruta portal
+            } else if (rol === 'ROLE_ADMIN' || rol === 'ROLE_ODONTOLOGO' || rol === 'ROLE_RECEPCIONISTA') {
+              this.router.navigate(['/panel/inicio']);  // Ajuste ruta panel
+            } else {
+              console.warn('Rol desconocido:', rol);
+              this.router.navigate(['/']);
+            }
+          },
+          error: (err) => {
+            console.error(err);
+            if (err.status === 403 || err.status === 401) {
+              this.mensajeError.set('Credenciales incorrectas.');
+            } else {
+              this.mensajeError.set('Error de conexión o servidor.');
+            }
+          }
+        });
+
+    } else { 
+      // Lógica de registro...
       if (this.formularioRegistro.invalid) {
         this.formularioRegistro.markAllAsTouched();
-        this.cargando.set(false);
         return;
       }
-
-      // Excluimos confirmarPassword antes de enviar al backend
+      this.cargando.set(true);
       const { confirmarPassword, ...registroData } = this.formularioRegistro.value;
 
-      this.authService.register(registroData).subscribe({
-        next: () => {
-          this.modo.set('login');
-          this.mensajeError.set('¡Registro exitoso! Por favor, inicia sesión.');
-          this.cargando.set(false);
-        }, 
-        error: (err) => {
-          this.mensajeError.set(err.message || 'Error en el registro.');
-          this.cargando.set(false);
-        }
-      });
+      this.authService.register(registroData)
+        .pipe(finalize(() => this.cargando.set(false)))
+        .subscribe({
+          next: () => {
+            this.modo.set('login');
+            this.mensajeError.set('¡Registro exitoso! Inicia sesión.');
+            this.formularioRegistro.reset();
+          }, 
+          error: (err) => {
+            this.mensajeError.set(err.error?.mensaje || 'Error al registrarse.');
+          }
+        });
     }
   }
 
-  get loginCtls() {
-    return this.formularioLogin.controls;
-  }
-
-  get registroCtls() {
-    return this.formularioRegistro.controls;
-  }
+  get loginCtls() { return this.formularioLogin.controls; }
+  get registroCtls() { return this.formularioRegistro.controls; }
 }

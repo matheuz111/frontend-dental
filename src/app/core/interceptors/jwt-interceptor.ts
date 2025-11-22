@@ -1,20 +1,27 @@
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import {
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpInterceptor
+} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AutenticacionService } from '../../services/autenticacion.service';
-import { environment } from '../../environments/environments'; // <--- IMPORTA ESTO
+import { environment } from '../../environments/environments';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
-  constructor(private autenticacionService: AutenticacionService) {}
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.autenticacionService.getToken();
+  constructor(private authService: AutenticacionService) {}
+
+  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    const token = this.authService.getToken();
+    const isApiUrl = request.url.startsWith(environment.apiUrl);
     
-    // Usamos environment.apiUrl directamente para asegurar que la comparación funciona
-    const esApiUrl = request.url.startsWith(environment.apiUrl);
+    // Excluir endpoints de autenticación para no enviar el token al hacer login/registro
+    const isAuthUrl = request.url.includes('/auth/');
 
-    if (token && esApiUrl) {
+    if (token && isApiUrl && !isAuthUrl) {
       request = request.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
