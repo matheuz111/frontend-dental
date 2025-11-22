@@ -93,7 +93,7 @@
                   <td>{{ cita.motivo }}</td>
                   <td>Dr. {{ cita.odontologo?.apellido }}</td>
                   <td>
-                    <span class="badge bg-{{ getColorEstado(cita.estado) }} bg-opacity-10 text-{{ getColorEstado(cita.estado) }} px-3 py-2 rounded-pill">
+                    <span class="badge bg-{{ getColorEstado(cita.estado || '') }} bg-opacity-10 text-{{ getColorEstado(cita.estado || '') }} px-3 py-2 rounded-pill">
                       {{ cita.estado }}
                     </span>
                   </td>
