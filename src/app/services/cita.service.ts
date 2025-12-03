@@ -38,4 +38,8 @@ export class CitaService {
       horaCita: nuevaHora 
     });
   }
+
+  listarPorPaciente(pacienteId: number): Observable<Cita[]> {
+    return this.http.get<Cita[]>(`${this.apiUrl}/paciente/${pacienteId}`);
+  }
 }

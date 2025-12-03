@@ -86,44 +86,38 @@ export class InicioPortal implements OnInit {
     this.buscarDatosDelPaciente();
   }
 
-  private buscarDatosDelPaciente(): void {
-    // 1. Obtener ID del usuario logueado
-    // NOTA: Si esto devuelve 0 o null, es porque el token es viejo. ¡Haz logout!
-    const usuarioId = this.authService.usuarioId(); 
+ private buscarDatosDelPaciente(): void {
+    const usuarioId = this.authService.usuarioId();
     
-    console.log("--- DEBUG INICIO PORTAL ---");
-    console.log("ID Usuario desde Token:", usuarioId);
+    // Si no hay ID o es 0, no podemos buscar nada
+    if (!usuarioId) return;
 
-    if (!usuarioId) {
-      console.warn("No se encontró ID en el token. El nombre no se podrá cargar.");
-      return;
-    }
+    console.log("Buscando ficha para Usuario ID:", usuarioId);
 
-    // 2. Traer todos los pacientes y buscar el nuestro
-    this.pacienteService.listar().subscribe({
-      next: (listaPacientes) => {
-        console.log("Lista de Pacientes descargada:", listaPacientes);
-
-        // 3. Buscar el paciente cuyo usuario.id coincida con mi ID
-        // Usamos '==' para que no importen las diferencias de tipo (string vs number)
-        const miPaciente = listaPacientes.find(p => p.usuario?.id == usuarioId);
-
+    // CORRECCIÓN: Usamos el método específico en lugar de .listar()
+    this.pacienteService.buscarPorUsuarioId(usuarioId).subscribe({
+      next: (miPaciente) => {
+        console.log("Datos paciente cargados:", miPaciente);
+        
         if (miPaciente) {
-          console.log("¡MATCH ENCONTRADO!", miPaciente);
-          
-          // Actualizamos el nombre con el dato real de la tabla Paciente
-          this.nombreUsuario.set(miPaciente.nombre);
+          // 1. Guardamos el paciente en la señal
           this.pacienteActual.set(miPaciente);
+          
+          // 2. Actualizamos el nombre que se muestra en el saludo
+          // (Si el paciente tiene nombre, úsalo; si no, usa el del token/servicio)
+          const nombreAMostrar = miPaciente.nombre || this.authService.nombreUsuario();
+          this.nombreUsuario.set(nombreAMostrar);
 
-          // Cargamos las citas de este paciente
+          // 3. Cargamos las citas de este paciente específico
           if (miPaciente.id) {
             this.cargarCitas(miPaciente.id);
           }
-        } else {
-          console.error("No se encontró ningún paciente vinculado al Usuario ID:", usuarioId);
         }
       },
-      error: (err) => console.error("Error al listar pacientes:", err)
+      error: (err) => {
+        console.error("Error al buscar datos del paciente:", err);
+        // Si da 404, significa que es un usuario nuevo sin ficha médica aún
+      }
     });
   }
 

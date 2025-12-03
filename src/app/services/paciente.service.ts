@@ -19,6 +19,10 @@ export class PacienteService {
     return this.http.get<Paciente[]>(this.apiUrl);
   }
 
+  buscarPorUsuarioId(usuarioId: number): Observable<Paciente> {
+    return this.http.get<Paciente>(`${this.apiUrl}/usuario/${usuarioId}`);
+  }
+
   /**
    * Obtener un paciente por ID
    */

@@ -50,28 +50,28 @@ form: FormGroup;
     this.obtenerIdPaciente(); // <--- 3. LLAMAR A LA BÚSQUEDA AL INICIAR
   }
 
-  // --- NUEVA LÓGICA: BUSCAR EL PACIENTE ---
+// ... imports
+
+  // --- LÓGICA CORREGIDA ---
   obtenerIdPaciente() {
     const usuarioId = this.authService.usuarioId();
     
-    if (usuarioId) {
-      this.pacienteService.listar().subscribe({
-        next: (pacientes) => {
-          // Buscamos el paciente vinculado a este usuario
-          const pacienteEncontrado = pacientes.find(p => {
-             // Comprobación segura de IDs (number vs string)
-             return (p.usuario?.id == usuarioId) || ((p.usuario as any)?.usuarioId == usuarioId);
-          });
-
+    if (usuarioId && usuarioId > 0) {
+      // Usamos el nuevo método optimizado
+      this.pacienteService.buscarPorUsuarioId(usuarioId).subscribe({
+        next: (pacienteEncontrado) => {
           if (pacienteEncontrado) {
-            this.pacienteIdReal = pacienteEncontrado.id;
+            this.pacienteIdReal = pacienteEncontrado.id!;
             console.log('Paciente identificado:', this.pacienteIdReal);
-          } else {
-            console.error('No se encontró ficha de paciente para este usuario');
-            alert('Error: No tienes una ficha de paciente asociada. Contacta al administrador.');
           }
         },
-        error: (err) => console.error('Error buscando paciente', err)
+        error: (err) => {
+          console.error('Error buscando ficha de paciente:', err);
+          // Si da 404 es que el usuario existe pero no se ha creado como paciente aún
+          if (err.status === 404) {
+             alert('Atención: Tu usuario no tiene una ficha de paciente creada. Contacta a recepción.');
+          }
+        }
       });
     }
   }
