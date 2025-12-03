@@ -1,0 +1,46 @@
+<nav class="navbar-dental">
+  <div class="navbar-container">
+    
+    <a routerLink="/portal/inicio" class="brand-section">
+      <span class="brand-icon">🦷</span>
+      <span class="brand-text">Clínica</span>
+    </a>
+
+    <ul class="nav-links-center">
+      <li>
+        <a routerLink="/portal/inicio" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+      </li>
+      <li>
+        <a routerLink="/portal/mis-citas" routerLinkActive="active-link">Mis Citas</a>
+      </li>
+      <li>
+        <a routerLink="/portal/agendar-cita" routerLinkActive="active-link">Agendar Cita</a>
+      </li>
+      <li>
+        <a routerLink="/portal/servicios" routerLinkActive="active-link">Tratamientos</a>
+      </li>
+      <li>
+        <a class="disabled-link">Pagos</a>
+      </li>
+    </ul>
+
+    <div class="user-section-right">
+      <ng-container *ngIf="usuarioLogueado(); else loginTemplate">
+        <div class="user-profile-badge">
+          <div class="user-avatar">
+            <i class="fas fa-user"></i> </div>
+          <span class="user-name">Hola, {{ nombreUsuario() }}</span>
+          
+          <button (click)="logout()" class="btn-logout-icon" title="Cerrar Sesión">
+             <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </ng-container>
+      
+      <ng-template #loginTemplate>
+        <a routerLink="/authentication/login" class="login-link">Iniciar Sesión</a>
+      </ng-template>
+    </div>
+
+  </div>
+</nav>

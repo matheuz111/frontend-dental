@@ -1,0 +1,73 @@
+<div class="container-fluid portal-container">
+
+  <header class="portal-header">
+    <h1>Tu Sonrisa al Día</h1>
+    <p>Hola {{ nombreUsuario() }}, bienvenido a tu portal dental.</p>
+  </header>
+
+  <div class="portal-grid">
+
+    <div class="grid-item progreso-card">
+      <h2 class="section-title">Higiene Diaria</h2>
+      <div class="progreso-content">
+        <div class="chart-container">
+            <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle" [style.stroke-dasharray]="progresoActividades() + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.35" class="percentage">{{ progresoActividades() }}%</text>
+            </svg>
+        </div>
+        <ul class="actividades-lista">
+          <li *ngFor="let actividad of actividadesDiarias()" (click)="toggleActividad(actividad.id)" [class.completado]="actividad.completado">
+            <mat-icon class="check-icon">{{ actividad.completado ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            <span>{{ actividad.descripcion }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid-item cita-card">
+      <h2 class="section-title">Próxima Visita</h2>
+      <ng-container *ngIf="proximaCita() as cita; else noCitas">
+        <div class="cita-content">
+          <div class="fecha-badge">
+            <span class="dia">{{ cita.fechaCita | date:'d' }}</span>
+            <span class="mes">{{ cita.fechaCita | date:'MMM' | uppercase }}</span>
+          </div>
+          <div class="cita-detalles">
+            <h3>Consulta con Dr(a). {{ cita.odontologo?.nombre }} {{ cita.odontologo?.apellido }}</h3>
+            <p class="hora"><mat-icon>access_time</mat-icon> {{ cita.horaCita }} hrs</p>
+            <p class="motivo">{{ cita.motivo }}</p>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noCitas>
+        <div class="empty-state">
+          <mat-icon>sentiment_satisfied_alt</mat-icon>
+          <p>¡Tu sonrisa está al día! No tienes citas pendientes.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="grid-item consejo-card" *ngIf="consejoDelDia() as consejo">
+      <div class="consejo-header">
+        <mat-icon class="consejo-icon">{{ consejo.icono }}</mat-icon>
+        <h3>Consejo Dental</h3>
+      </div>
+      <p>{{ consejo.contenido }}</p>
+    </div>
+
+    <div class="grid-item acciones-card">
+      <h2 class="section-title">Accesos Rápidos</h2>
+      <div class="botones-grid">
+        <button mat-stroked-button color="primary">
+            <mat-icon>add_circle_outline</mat-icon> Nueva Cita
+        </button>
+        <button mat-stroked-button>
+            <mat-icon>history</mat-icon> Historial
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

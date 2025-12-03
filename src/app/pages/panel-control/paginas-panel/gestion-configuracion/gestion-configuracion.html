@@ -1,0 +1,164 @@
+<div class="container-fluid p-4">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeInDown">
+    <div>
+      <h2 class="fw-bold text-dark mb-0">Configuración de Cuenta</h2>
+      <p class="text-muted mb-0">Administra tu perfil y seguridad</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    
+    <!-- COLUMNA IZQUIERDA: TARJETA DE PERFIL -->
+    <div class="col-lg-4 animate__animated animate__fadeInLeft">
+      <div class="card border-0 shadow-sm profile-card h-100">
+        <div class="card-body text-center pt-5 pb-4 px-4">
+          
+          <div class="position-relative d-inline-block mb-3">
+            <div class="avatar-circle mx-auto shadow">
+              {{ usuarioActual.iniciales }}
+            </div>
+            <span class="position-absolute bottom-0 end-0 p-2 bg-success border border-light rounded-circle">
+              <span class="visually-hidden">Activo</span>
+            </span>
+          </div>
+
+          <h4 class="fw-bold text-dark mb-1">{{ usuarioActual.nombre }} {{ usuarioActual.apellido }}</h4>
+          <p class="text-muted mb-3">{{ usuarioActual.email }}</p>
+          
+          <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill text-uppercase fw-bold" style="letter-spacing: 1px;">
+            {{ usuarioActual.rol }}
+          </span>
+
+          <hr class="my-4 opacity-10">
+
+          <div class="text-start">
+            <p class="small text-uppercase text-muted fw-bold mb-3">Información Rápida</p>
+            
+            <div class="d-flex align-items-center mb-3 info-item">
+              <div class="icon-sq bg-light text-primary me-3 rounded">
+                <i class="bi bi-user-shield"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block">Estado de Cuenta</small>
+                <span class="fw-semibold text-success">Activa y Verificada</span>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center info-item">
+              <div class="icon-sq bg-light text-info me-3 rounded">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block">Email Registrado</small>
+                <span class="fw-semibold text-dark">{{ usuarioActual.email }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: CAMBIO DE CONTRASEÑA -->
+    <div class="col-lg-8 animate__animated animate__fadeInRight">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+          <h5 class="card-title fw-bold text-primary">
+            <i class="bi bi-lock me-2"></i>Seguridad y Contraseña
+          </h5>
+          <p class="text-muted small">Actualiza tu contraseña periódicamente para mantener tu cuenta segura.</p>
+        </div>
+        
+        <div class="card-body p-4">
+          
+          <!-- Alertas -->
+          <div *ngIf="mensajeExito" class="alert alert-success d-flex align-items-center border-0 shadow-sm rounded-3" role="alert">
+            <i class="bi bi-check-circle bi-lg me-3"></i>
+            <div>{{ mensajeExito }}</div>
+            <button type="button" class="btn-close ms-auto" (click)="mensajeExito=''"></button>
+          </div>
+
+          <div *ngIf="mensajeError" class="alert alert-danger d-flex align-items-center border-0 shadow-sm rounded-3" role="alert">
+            <i class="bi bi-exclamation-circle bi-lg me-3"></i>
+            <div>{{ mensajeError }}</div>
+            <button type="button" class="btn-close ms-auto" (click)="mensajeError=''"></button>
+          </div>
+
+          <form [formGroup]="formPassword" (ngSubmit)="actualizarPassword()" class="mt-2">
+            
+            <!-- Contraseña Actual -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Contraseña Actual</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-key"></i></span>
+                <input [type]="verActual ? 'text' : 'password'" class="form-control border-start-0 border-end-0" 
+                       formControlName="contrasenaActual" placeholder="Ingresa tu contraseña actual"
+                       [class.is-invalid]="formPassword.get('contrasenaActual')?.invalid && formPassword.get('contrasenaActual')?.touched">
+                <button type="button" class="btn btn-light border border-start-0 text-muted" (click)="toggleVerActual()">
+                  <i class="fas" [class.bi-eye]="!verActual" [class.bi-eye-slash]="verActual"></i>
+                </button>
+              </div>
+              <div class="text-danger small mt-1" *ngIf="formPassword.get('contrasenaActual')?.invalid && formPassword.get('contrasenaActual')?.touched">
+                Este campo es obligatorio.
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Nueva Contraseña -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Nueva Contraseña</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                  <input [type]="verNueva ? 'text' : 'password'" class="form-control border-start-0 border-end-0" 
+                         formControlName="nuevaContrasena" placeholder="Mínimo 6 caracteres"
+                         [class.is-invalid]="formPassword.get('nuevaContrasena')?.invalid && formPassword.get('nuevaContrasena')?.touched">
+                  <button type="button" class="btn btn-light border border-start-0 text-muted" (click)="toggleVerNueva()">
+                    <i class="fas" [class.bi-eye]="!verNueva" [class.bi-eye-slash]="verNueva"></i>
+                  </button>
+                </div>
+                <div class="text-danger small mt-1" *ngIf="formPassword.get('nuevaContrasena')?.errors?.['required'] && formPassword.get('nuevaContrasena')?.touched">
+                  Campo requerido.
+                </div>
+                <div class="text-danger small mt-1" *ngIf="formPassword.get('nuevaContrasena')?.errors?.['minlength'] && formPassword.get('nuevaContrasena')?.touched">
+                  Mínimo 6 caracteres.
+                </div>
+              </div>
+              
+              <!-- Confirmar Contraseña -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Confirmar Contraseña</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-check-double"></i></span>
+                  <input [type]="verConfirmar ? 'text' : 'password'" class="form-control border-start-0 border-end-0" 
+                         formControlName="confirmarContrasena" placeholder="Repite la contraseña"
+                         [class.is-invalid]="formPassword.get('confirmarContrasena')?.touched && (formPassword.hasError('notSame') || formPassword.get('confirmarContrasena')?.invalid)">
+                  <button type="button" class="btn btn-light border border-start-0 text-muted" (click)="toggleVerConfirmar()">
+                    <i class="fas" [class.bi-eye]="!verConfirmar" [class.bi-eye-slash]="verConfirmar"></i>
+                  </button>
+                </div>
+                <div class="text-danger small mt-1" *ngIf="formPassword.hasError('notSame') && formPassword.get('confirmarContrasena')?.touched">
+                  Las contraseñas no coinciden.
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+              <button type="submit" class="btn btn-primary px-5 py-2 shadow-sm rounded-3" 
+                      [disabled]="cargando || formPassword.invalid">
+                <ng-container *ngIf="!cargando">
+                  <i class="bi bi-save me-2"></i>Actualizar Contraseña
+                </ng-container>
+                <ng-container *ngIf="cargando">
+                  <span class="spinner-border spinner-border-sm me-2"></span> Procesando...
+                </ng-container>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

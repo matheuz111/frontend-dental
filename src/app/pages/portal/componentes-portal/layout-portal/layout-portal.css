@@ -1,0 +1,10 @@
+.portal-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ocupa toda la altura de la pantalla */
+}
+
+.portal-content {
+  flex: 1; /* Empuja el footer hacia abajo */
+  background-color: #f8fafc; /* Fondo gris suave opcional */
+}
