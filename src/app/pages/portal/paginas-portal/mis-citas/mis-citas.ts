@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { CitaService } from '../../../../services/cita.service'; // Verifica ruta
 import { AutenticacionService } from '../../../..//services/autenticacion.service'; // Verifica ruta
 import { Cita } from '../../../../core/models/cita'; // Verifica ruta
@@ -7,7 +8,7 @@ import { Cita } from '../../../../core/models/cita'; // Verifica ruta
 @Component({
   selector: 'app-mis-citas',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, RouterModule],
   templateUrl: './mis-citas.html',
   styleUrls: ['./mis-citas.css']
 })

@@ -7,6 +7,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CitaService } from '../../../../services/cita.service';
 import { OdontologoService } from '../../../../services/odontologo.service';
 import { AutenticacionService } from '../../../../services/autenticacion.service';
+import { PacienteService } from '../../../../services/paciente.service';
 import { Odontologo } from '../../../../core/models/odontologo';
 
 @Component({
@@ -23,14 +24,16 @@ export class AgendarCita implements OnInit {
   private citaService = inject(CitaService);
   private odontologoService = inject(OdontologoService);
   private authService = inject(AutenticacionService);
-
-  form: FormGroup;
+  private pacienteService = inject(PacienteService);
+form: FormGroup;
   odontologos = signal<Odontologo[]>([]);
   loading = false;
-  minDate: string = ''; // Para no permitir fechas pasadas
+  minDate: string = '';
+  
+  // Variable para guardar el ID REAL del paciente
+  pacienteIdReal: number | null = null; 
 
   constructor() {
-    // Configuración del Formulario
     this.form = this.fb.group({
       odontologoId: ['', [Validators.required]],
       fechaCita: ['', [Validators.required]],
@@ -38,13 +41,39 @@ export class AgendarCita implements OnInit {
       motivo: ['', [Validators.required, Validators.maxLength(255)]]
     });
 
-    // Calcular fecha mínima (hoy)
     const hoy = new Date();
     this.minDate = hoy.toISOString().split('T')[0];
   }
 
   ngOnInit(): void {
     this.cargarOdontologos();
+    this.obtenerIdPaciente(); // <--- 3. LLAMAR A LA BÚSQUEDA AL INICIAR
+  }
+
+  // --- NUEVA LÓGICA: BUSCAR EL PACIENTE ---
+  obtenerIdPaciente() {
+    const usuarioId = this.authService.usuarioId();
+    
+    if (usuarioId) {
+      this.pacienteService.listar().subscribe({
+        next: (pacientes) => {
+          // Buscamos el paciente vinculado a este usuario
+          const pacienteEncontrado = pacientes.find(p => {
+             // Comprobación segura de IDs (number vs string)
+             return (p.usuario?.id == usuarioId) || ((p.usuario as any)?.usuarioId == usuarioId);
+          });
+
+          if (pacienteEncontrado) {
+            this.pacienteIdReal = pacienteEncontrado.id;
+            console.log('Paciente identificado:', this.pacienteIdReal);
+          } else {
+            console.error('No se encontró ficha de paciente para este usuario');
+            alert('Error: No tienes una ficha de paciente asociada. Contacta al administrador.');
+          }
+        },
+        error: (err) => console.error('Error buscando paciente', err)
+      });
+    }
   }
 
   cargarOdontologos() {
@@ -60,28 +89,40 @@ export class AgendarCita implements OnInit {
       return;
     }
 
-    this.loading = true;
-    const pacienteId = this.authService.usuarioId(); // ID del usuario logueado
+    // Validación de seguridad
+    if (!this.pacienteIdReal) {
+      alert('No se ha podido identificar tu usuario como paciente. Recarga la página o contacta soporte.');
+      return;
+    }
 
-    // Construimos el objeto tal cual lo pide Java
+    this.loading = true;
+
+    // Construimos el objeto con el ID CORRECTO
     const nuevaCita = {
-      pacienteId: pacienteId,
+      pacienteId: this.pacienteIdReal, // <--- USAMOS EL ID DE LA TABLA PACIENTE
       odontologoId: Number(this.form.value.odontologoId),
       fechaCita: this.form.value.fechaCita,
-      horaCita: this.form.value.horaCita, // El input type="time" ya devuelve HH:mm
+      horaCita: this.form.value.horaCita,
       motivo: this.form.value.motivo,
-      estado: 'PENDIENTE' // Opcional, el backend suele ponerlo por defecto
+      estado: 'PENDIENTE'
     };
+
+    console.log('Enviando cita:', nuevaCita); // Debug
 
     this.citaService.crear(nuevaCita).subscribe({
       next: () => {
         alert('¡Cita agendada con éxito!');
         this.loading = false;
-        this.router.navigate(['/portal/mis-citas']); // Redirigir a la lista
+        this.router.navigate(['/portal/mis-citas']);
       },
       error: (err) => {
         console.error('Error al agendar', err);
-        alert('Ocurrió un error al agendar la cita. Inténtalo de nuevo.');
+        // Mostrar mensaje más amigable
+        if(err.status === 500) {
+             alert('Error del servidor. Verifica que el horario esté disponible.');
+        } else {
+             alert('Ocurrió un error al agendar la cita. Inténtalo de nuevo.');
+        }
         this.loading = false;
       }
     });

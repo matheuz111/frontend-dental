@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { CitaService } from '../../../../services/cita.service';
 import { AutenticacionService } from '../../../../services/autenticacion.service';
@@ -7,7 +8,7 @@ import { Cita } from '../../../../core/models/cita';
 @Component({
   selector: 'app-mi-historial',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, RouterModule],
   templateUrl: './mi-historial.html',
   styleUrls: ['./mi-historial.css']
 })

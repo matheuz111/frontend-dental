@@ -22,15 +22,14 @@ export interface RegisterPayload {
   genero?: string;
 }
 
-// 1. AGREGAMOS EL CAMPO 'id' A LA INTERFAZ DEL TOKEN
+// 1. ACTUALIZAMOS LA INTERFAZ DEL TOKEN
 interface DecodedToken {
   sub: string;
   rol: string;
   exp: number;
-  id?: number;        // <--- NUEVO: Esperamos que el backend mande el ID
-  userId?: number;    // (Opcional) A veces se llama userId
   nombres?: string;
   apellidos?: string;
+  id?: number; // <--- ¡IMPORTANTE! El campo ID que envía el backend
 }
 
 @Injectable({
@@ -43,7 +42,7 @@ export class AutenticacionService {
   usuarioLogueado = signal<boolean>(false);
   rolUsuario = signal<string>('');
   
-  // 2. AGREGAMOS LA SEÑAL PARA EL ID
+  // 2. SEÑAL PARA EL ID (Necesaria para buscar al paciente)
   usuarioId = signal<number>(0); 
   
   nombreUsuario = signal<string>('');
@@ -74,9 +73,11 @@ export class AutenticacionService {
 
   logout() {
     localStorage.removeItem('jwt_token');
+    
+    // Limpiamos todas las señales al salir
     this.usuarioLogueado.set(false);
     this.rolUsuario.set('');
-    this.usuarioId.set(0); // Limpiamos el ID
+    this.usuarioId.set(0); // <--- Resetear ID
     this.nombreUsuario.set('');
     this.apellidoUsuario.set('');
     
@@ -103,21 +104,23 @@ export class AutenticacionService {
     return !!token && !this.esTokenExpirado(token);
   }
 
+  // --- LÓGICA CORREGIDA ---
   private procesarToken(token: string): void {
     try {
       const payload: DecodedToken = jwtDecode(token);
       
       this.usuarioLogueado.set(true);
       this.rolUsuario.set(payload.rol || '');
-      
-      // 3. CAPTURAMOS EL ID DEL TOKEN
-      // Intentamos leer 'id' o 'userId', si no viene, ponemos 0
-      const idCapturado = payload.id || payload.userId || 0;
-      this.usuarioId.set(Number(idCapturado));
-      
       this.nombreUsuario.set(payload.nombres || '');
       this.apellidoUsuario.set(payload.apellidos || '');
+
+      // 3. EXTRAER EL ID DEL TOKEN
+      // Si existe, lo guardamos. Si no, ponemos 0.
+      const idCapturado = payload.id ? Number(payload.id) : 0;
+      this.usuarioId.set(idCapturado);
       
+      console.log('Token procesado. ID Usuario:', idCapturado); // Debug
+
     } catch (error) {
       console.error('Error al decodificar token:', error);
       this.logout();

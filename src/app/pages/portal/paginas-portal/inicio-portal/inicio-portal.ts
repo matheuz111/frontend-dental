@@ -1,8 +1,6 @@
-import { Component, OnInit, signal, computed, Signal } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
-// Si no tienes Angular Material instalado, usa divs normales o instala los módulos.
-// Asumo que tienes Material por el proyecto de referencia, si no, avísame para darte HTML estándar.
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +12,7 @@ import { AutenticacionService } from '../../../../services/autenticacion.service
 import { CitaService } from '../../../../services/cita.service';
 import { PacienteService } from '../../../../services/paciente.service';
 import { Cita } from '../../../../core/models/cita';
-import { jwtDecode } from 'jwt-decode';
+import { Paciente } from '../../../../core/models/paciente';
 
 interface ActividadDiaria {
   id: number;
@@ -40,20 +38,41 @@ interface Consejo {
   styleUrls: ['./inicio-portal.css']
 })
 export class InicioPortal implements OnInit {
-  nombreUsuario = signal('');
-  proximaCita: Signal<Cita | undefined>;
+  
+  // Servicios
+  private authService = inject(AutenticacionService);
+  private citaService = inject(CitaService);
+  private pacienteService = inject(PacienteService);
+
+  // Señales
+  nombreUsuario = signal<string>('Paciente'); // Valor por defecto mientras carga
   
   actividadesDiarias = signal<ActividadDiaria[]>([]);
-  progresoActividades: Signal<number>; 
   consejoDelDia = signal<Consejo | null>(null);
   
-  // Datos simulados para el dashboard
+  // Datos privados
+  private citas = signal<Cita[]>([]);
+  private pacienteActual = signal<Paciente | null>(null);
+
+  // Computados
+  proximaCita = computed(() => {
+    const ahora = new Date();
+    return this.citas()
+      .filter(c => new Date(c.fechaCita + 'T' + c.horaCita) > ahora && c.estado !== 'Cancelada')
+      .sort((a, b) => new Date(a.fechaCita).getTime() - new Date(b.fechaCita).getTime())[0];
+  });
+
+  progresoActividades = computed(() => {
+    const actividades = this.actividadesDiarias();
+    if (actividades.length === 0) return 100;
+    const completadas = actividades.filter(a => a.completado).length;
+    return Math.round((completadas / actividades.length) * 100);
+  });
+
+  // Datos para el dashboard (simulados)
   tratamientosPendientes = signal(0);
   pagosPendientes = signal(0);
-  
-  private citas = signal<Cita[]>([]);
-  
-  // Consejos adaptados a Odontología
+
   private todosLosConsejos: Consejo[] = [
     { titulo: 'La Regla de los 2 Minutos', contenido: 'Cepíllate los dientes durante al menos 2 minutos, dos veces al día.', icono: 'timer' },
     { titulo: 'Hilo Dental Diario', contenido: 'El cepillo no llega a todas partes. Usa hilo dental una vez al día antes de dormir.', icono: 'cleaning_services' },
@@ -62,64 +81,61 @@ export class InicioPortal implements OnInit {
     { titulo: 'Visita Regular', contenido: 'Una limpieza profesional cada 6 meses es clave para mantener tu sonrisa brillante.', icono: 'calendar_today' },
   ];
 
-  constructor(
-    private authService: AutenticacionService,
-    private citaService: CitaService,
-    private pacienteService: PacienteService
-  ) {
-    // Usamos los signals del Auth Service
-    this.nombreUsuario = this.authService.nombreUsuario;
-
-    this.proximaCita = computed(() => {
-      const ahora = new Date();
-      return this.citas()
-        .filter(c => new Date(c.fechaCita + 'T' + c.horaCita) > ahora && c.estado !== 'Cancelada')
-        .sort((a, b) => new Date(a.fechaCita).getTime() - new Date(b.fechaCita).getTime())[0];
-    });
-
-    this.progresoActividades = computed(() => {
-      const actividades = this.actividadesDiarias();
-      if (actividades.length === 0) return 100;
-      const completadas = actividades.filter(a => a.completado).length;
-      return Math.round((completadas / actividades.length) * 100);
-    });
-  }
-
   ngOnInit(): void {
     this.cargarDatosDashboard();
-    this.obtenerDatosPacienteYCitas();
+    this.buscarDatosDelPaciente();
   }
 
-  private obtenerDatosPacienteYCitas(): void {
-    // 1. Decodificamos el token para obtener el DNI (sub)
-    const token = this.authService.getToken();
-    if (token) {
-      try {
-        const decoded: any = jwtDecode(token);
-        const documentoIdentidad = decoded.sub; // Asumiendo que 'sub' es el DNI
+  private buscarDatosDelPaciente(): void {
+    // 1. Obtener ID del usuario logueado
+    // NOTA: Si esto devuelve 0 o null, es porque el token es viejo. ¡Haz logout!
+    const usuarioId = this.authService.usuarioId(); 
+    
+    console.log("--- DEBUG INICIO PORTAL ---");
+    console.log("ID Usuario desde Token:", usuarioId);
 
-        // 2. Buscamos al paciente por DNI para obtener su ID
-        if (documentoIdentidad) {
-          this.pacienteService.buscarPorDni(documentoIdentidad).subscribe({
-            next: (paciente) => {
-              if (paciente && paciente.id) {
-                // 3. Con el ID, cargamos las citas
-                this.cargarCitas(paciente.id);
-              }
-            },
-            error: (err) => console.error('Error buscando paciente', err)
-          });
-        }
-      } catch (e) {
-        console.error('Error leyendo token', e);
-      }
+    if (!usuarioId) {
+      console.warn("No se encontró ID en el token. El nombre no se podrá cargar.");
+      return;
     }
+
+    // 2. Traer todos los pacientes y buscar el nuestro
+    this.pacienteService.listar().subscribe({
+      next: (listaPacientes) => {
+        console.log("Lista de Pacientes descargada:", listaPacientes);
+
+        // 3. Buscar el paciente cuyo usuario.id coincida con mi ID
+        // Usamos '==' para que no importen las diferencias de tipo (string vs number)
+        const miPaciente = listaPacientes.find(p => p.usuario?.id == usuarioId);
+
+        if (miPaciente) {
+          console.log("¡MATCH ENCONTRADO!", miPaciente);
+          
+          // Actualizamos el nombre con el dato real de la tabla Paciente
+          this.nombreUsuario.set(miPaciente.nombre);
+          this.pacienteActual.set(miPaciente);
+
+          // Cargamos las citas de este paciente
+          if (miPaciente.id) {
+            this.cargarCitas(miPaciente.id);
+          }
+        } else {
+          console.error("No se encontró ningún paciente vinculado al Usuario ID:", usuarioId);
+        }
+      },
+      error: (err) => console.error("Error al listar pacientes:", err)
+    });
   }
 
   private cargarCitas(pacienteId: number): void {
-    // Enviamos undefined en fecha y odontologo, y el ID del paciente
-    this.citaService.listar(undefined, undefined, pacienteId).subscribe({
-      next: (citas) => this.citas.set(citas),
+    this.citaService.listar().subscribe({
+      next: (todasLasCitas) => {
+        // Filtramos las citas de este paciente
+        const citasFiltradas = todasLasCitas.filter(c => 
+          c.pacienteId === pacienteId || c.paciente?.id === pacienteId
+        );
+        this.citas.set(citasFiltradas);
+      },
       error: (err) => console.error('Error cargando citas', err)
     });
   }

@@ -1,6 +1,7 @@
 import { Rol } from './rol';
 
 export interface Usuario {
+    id:number;
     usuarioId: number;           // usuario_id
     documentoIdentidad: string;  // documento_identidad
     contrasenaHash?: string;     // contrasena_hash (no se envía al frontend normalmente)
@@ -28,6 +29,7 @@ export interface RegisterPayload {
 }
 
 export interface UserProfile {
+    id: number;
     usuarioId: number;
     documentoIdentidad: string;
     nombres: string;              // Combinación frontend
