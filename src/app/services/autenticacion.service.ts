@@ -22,12 +22,14 @@ export interface RegisterPayload {
   genero?: string;
 }
 
-// Definimos qué trae nuestro Token por dentro
+// 1. AGREGAMOS EL CAMPO 'id' A LA INTERFAZ DEL TOKEN
 interface DecodedToken {
   sub: string;
   rol: string;
   exp: number;
-  nombres?: string;   // Estos campos ahora vienen del backend
+  id?: number;        // <--- NUEVO: Esperamos que el backend mande el ID
+  userId?: number;    // (Opcional) A veces se llama userId
+  nombres?: string;
   apellidos?: string;
 }
 
@@ -37,9 +39,13 @@ interface DecodedToken {
 export class AutenticacionService {
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  // Signals globales de usuario
+  // Signals globales
   usuarioLogueado = signal<boolean>(false);
   rolUsuario = signal<string>('');
+  
+  // 2. AGREGAMOS LA SEÑAL PARA EL ID
+  usuarioId = signal<number>(0); 
+  
   nombreUsuario = signal<string>('');
   apellidoUsuario = signal<string>('');
 
@@ -50,18 +56,13 @@ export class AutenticacionService {
     this.verificarTokenAlCargar();
   }
 
-  // --- LÓGICA DE LOGIN CORREGIDA ---
   login(documentoIdentidad: string, contrasena: string): Observable<AuthResponse> {
     const payload = { documentoIdentidad, password: contrasena };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, payload)
       .pipe(
         tap(response => {
-          // 1. Guardar token
           localStorage.setItem('jwt_token', response.token);
-
-          // 2. CORRECCIÓN: Procesar el token INMEDIATAMENTE para extraer nombres/apellidos
-          // Antes solo guardabas el rol manual, ahora leemos todo del token nuevo.
           this.procesarToken(response.token);
         })
       );
@@ -73,16 +74,14 @@ export class AutenticacionService {
 
   logout() {
     localStorage.removeItem('jwt_token');
-    // Limpiar todas las señales
     this.usuarioLogueado.set(false);
     this.rolUsuario.set('');
+    this.usuarioId.set(0); // Limpiamos el ID
     this.nombreUsuario.set('');
     this.apellidoUsuario.set('');
     
     this.router.navigate(['/authentication/login']);
   }
-
-  // --- MANEJO DE TOKEN ---
 
   private verificarTokenAlCargar(): void {
     const token = this.getToken();
@@ -104,7 +103,6 @@ export class AutenticacionService {
     return !!token && !this.esTokenExpirado(token);
   }
 
-  // Esta función es la encargada de leer el JWT y llenar las variables
   private procesarToken(token: string): void {
     try {
       const payload: DecodedToken = jwtDecode(token);
@@ -112,8 +110,11 @@ export class AutenticacionService {
       this.usuarioLogueado.set(true);
       this.rolUsuario.set(payload.rol || '');
       
-      // Aquí asignamos los datos para el Navbar
-      // Si vienen vacíos (undefined), ponemos cadena vacía
+      // 3. CAPTURAMOS EL ID DEL TOKEN
+      // Intentamos leer 'id' o 'userId', si no viene, ponemos 0
+      const idCapturado = payload.id || payload.userId || 0;
+      this.usuarioId.set(Number(idCapturado));
+      
       this.nombreUsuario.set(payload.nombres || '');
       this.apellidoUsuario.set(payload.apellidos || '');
       

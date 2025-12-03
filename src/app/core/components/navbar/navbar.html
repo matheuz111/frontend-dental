@@ -1,45 +1,37 @@
-<nav class="navbar-dental">
-  <div class="navbar-container">
+<nav class="navbar navbar-expand-lg bg-light shadow-sm portal-nav-hybrid">
+  <div class="container-fluid">
     
-    <a routerLink="/portal/inicio" class="brand-section">
-      <span class="brand-icon">🦷</span>
-      <span class="brand-text">Clínica</span>
+    <a class="navbar-brand d-flex align-items-center fw-bold" routerLink="/portal/inicio">
+      <i class="bi bi-heart-pulse-fill me-2" style="color: var(--color-primario);"></i>
+      <span>Sonrisa Plena</span>
     </a>
 
-    <ul class="nav-links-center">
-      <li>
-        <a routerLink="/portal/inicio" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
-      </li>
-      <li>
-        <a routerLink="/portal/mis-citas" routerLinkActive="active-link">Mis Citas</a>
-      </li>
-      <li>
-        <a routerLink="/portal/agendar-cita" routerLinkActive="active-link">Agendar Cita</a>
-      </li>
-      <li>
-        <a routerLink="/portal/servicios" routerLinkActive="active-link">Tratamientos</a>
-      </li>
-      <li>
-        <a class="disabled-link">Pagos</a>
-      </li>
-    </ul>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-    <div class="user-section-right">
-      <ng-container *ngIf="usuarioLogueado(); else loginTemplate">
-        <div class="user-profile-badge">
-          <div class="user-avatar">
-            <i class="fas fa-user"></i> </div>
-          <span class="user-name">Hola, {{ nombreUsuario() }}</span>
-          
-          <button (click)="logout()" class="btn-logout-icon" title="Cerrar Sesión">
-             <i class="fas fa-sign-out-alt"></i>
-          </button>
-        </div>
-      </ng-container>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/portal/inicio" routerLinkActive="active">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/portal/mis-citas" routerLinkActive="active">Mis Citas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/portal/agendar-cita" routerLinkActive="active">Agendar Cita</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/portal/mi-historial" routerLinkActive="active">Mi Historial</a>
+        </li>
+        </ul>
       
-      <ng-template #loginTemplate>
-        <a routerLink="/authentication/login" class="login-link">Iniciar Sesión</a>
-      </ng-template>
+      <div class="d-flex align-items-center">
+         <span class="me-3 fw-bold text-secondary">{{ nombreUsuario() }}</span>
+         <button class="btn btn-outline-danger btn-sm rounded-pill" (click)="logout()">
+           <i class="bi bi-box-arrow-right me-1"></i> Salir
+         </button>
+      </div>
     </div>
 
   </div>

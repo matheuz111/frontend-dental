@@ -1,0 +1,87 @@
+.historial-container {
+  max-width: 100%;
+}
+
+/* Animación */
+.fade-in { animation: fadeIn 0.5s ease-in-out; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- ESTILOS TIMELINE --- */
+.timeline {
+  position: relative;
+  padding: 20px 0;
+  border-left: 2px solid #e9ecef; /* Línea gris vertical */
+  margin-left: 80px; /* Espacio para la fecha a la izquierda */
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+/* Fecha a la izquierda */
+.timeline-date {
+  position: absolute;
+  left: -95px;
+  width: 80px;
+  text-align: right;
+  top: 0;
+  padding-right: 15px;
+  color: var(--color-texto-principal);
+}
+
+/* Punto Azul */
+.timeline-marker {
+  position: absolute;
+  left: -9px; /* Centrado sobre la línea de 2px */
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--color-primario, #3498db);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #e9ecef;
+}
+
+/* Tarjeta de contenido */
+.timeline-content {
+  padding-left: 20px;
+}
+
+.timeline-content .card {
+  transition: transform 0.2s;
+  border-radius: 12px;
+}
+
+.timeline-content .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important;
+}
+
+/* Badges */
+.bg-success { background-color: #2ecc71 !important; color: white; }
+.bg-danger { background-color: #e74c3c !important; color: white; }
+.bg-secondary { background-color: #95a5a6 !important; color: white; }
+
+/* Ajustes para Impresión */
+@media print {
+  .d-print-none { display: none !important; }
+  .portal-layout { background: white !important; }
+  .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+  .timeline { margin-left: 0; border-left: none; }
+  .timeline-date { position: static; text-align: left; margin-bottom: 5px; width: 100%; }
+  .timeline-marker { display: none; }
+  .timeline-content { padding-left: 0; }
+}
+
+/* Móvil */
+@media (max-width: 576px) {
+  .timeline { margin-left: 0; border-left: none; }
+  .timeline-item { border-left: 2px solid #e9ecef; padding-left: 15px; margin-left: 10px; }
+  .timeline-date { position: static; text-align: left; margin-bottom: 5px; width: 100%; }
+  .timeline-marker { left: -19px; }
+  .timeline-content { padding-left: 0; }
+}

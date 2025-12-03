@@ -1,1 +1,70 @@
-<p>agendar-cita works!</p>
+<div class="agendar-container fade-in">
+  
+  <div class="header-section mb-4">
+    <h2 class="d-flex align-items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512" class="me-2" style="fill: var(--color-primario);">
+        <path d="M384 115.6c-22.3-15.6-46.7-25-69.5-29-10.8-1.9-20.1-13.6-18.1-24.4l3.1-17.1c2.6-14.3-8.3-27.1-22.8-27.1h-41.4c-14.5 0-25.4 12.8-22.8 27.1l3.1 17.1c2 10.8-7.3 22.5-18.1 24.4-22.8 4-47.2 13.4-69.5 29C77.4 151.7 32 245.9 32 304.5c0 74.7 47.9 133 119.8 174 19.3 11 43.1 19.8 69.8 21.5 6.6 2.2 13.3 3.6 20.4 4.1 6.3 3.9 10 4.1 14.9 3.9 4.9.2 8.6 0 14.9-3.9 7.1-.4 13.8-1.9 20.4-4.1 26.7-1.7 50.5-10.5 69.8-21.5 71.9-41 119.8-99.3 119.8-174 .1-58.6-45.3-152.8-97.8-188.9z"/>
+      </svg>
+      Nueva Cita
+    </h2>
+    <p class="text-muted">Completa el formulario para reservar tu atención dental.</p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
+          
+          <form [formGroup]="form" (ngSubmit)="registrarCita()">
+            
+            <div class="mb-4">
+              <label class="form-label fw-bold">Seleccionar Odontólogo</label>
+              <select class="form-select form-select-lg" formControlName="odontologoId" 
+                      [class.is-invalid]="form.get('odontologoId')?.invalid && form.get('odontologoId')?.touched">
+                <option value="" disabled selected>Elige un especialista...</option>
+                <option *ngFor="let odo of odontologos()" [value]="odo.id">
+                  Dr. {{ odo.nombre }} {{ odo.apellido }} - {{ odo.especialidad }}
+                </option>
+              </select>
+              <div class="invalid-feedback">Debes seleccionar un odontólogo.</div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-4">
+                <label class="form-label fw-bold">Fecha de Cita</label>
+                <input type="date" class="form-control form-control-lg" formControlName="fechaCita" [min]="minDate"
+                       [class.is-invalid]="form.get('fechaCita')?.invalid && form.get('fechaCita')?.touched">
+                <div class="invalid-feedback">Selecciona una fecha válida.</div>
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <label class="form-label fw-bold">Hora Preferida</label>
+                <input type="time" class="form-control form-control-lg" formControlName="horaCita"
+                       [class.is-invalid]="form.get('horaCita')?.invalid && form.get('horaCita')?.touched">
+                <div class="invalid-feedback">Selecciona una hora.</div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold">Motivo de la Consulta</label>
+              <textarea class="form-control" rows="3" formControlName="motivo" 
+                        placeholder="Ej: Dolor de muela, limpieza general..."
+                        [class.is-invalid]="form.get('motivo')?.invalid && form.get('motivo')?.touched"></textarea>
+              <div class="invalid-feedback">Cuéntanos brevemente el motivo (máx 255 caracteres).</div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+              <button type="button" class="btn btn-light px-4 me-md-2" routerLink="/portal/mis-citas">Cancelar</button>
+              <button type="submit" class="btn btn-primary px-5 btn-lg" [disabled]="form.invalid || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                {{ loading ? 'Agendando...' : 'Confirmar Cita' }}
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,67 @@
-<p>mi-historial works!</p>
+<div class="historial-container fade-in">
+
+  <div class="d-flex justify-content-between align-items-center mb-4 header-print">
+    <div>
+      <h2 class="d-flex align-items-center mb-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512" class="me-2 text-primary" style="fill: currentColor;">
+          <path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM112 256H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/>
+        </svg>
+        Historial Clínico
+      </h2>
+      <p class="text-muted m-0">Registro de todas tus atenciones y tratamientos realizados.</p>
+    </div>
+    
+    <button class="btn btn-outline-secondary d-print-none" (click)="imprimirHistorial()">
+      <i class="fas fa-print me-2"></i> Imprimir Reporte
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <div *ngIf="!loading && historial.length === 0" class="text-center py-5 empty-state">
+    <div class="mb-3 opacity-50">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-folder2-open" viewBox="0 0 16 16">
+        <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z"/>
+      </svg>
+    </div>
+    <h5 class="text-muted">Aún no tienes historial médico</h5>
+    <p class="small">Tus atenciones completadas aparecerán aquí.</p>
+  </div>
+
+  <div class="timeline" *ngIf="!loading && historial.length > 0">
+    
+    <div class="timeline-item" *ngFor="let item of historial">
+      <div class="timeline-date">
+        <span class="fw-bold fs-5 d-block">{{ item.fechaCita | date:'dd MMM' }}</span>
+        <span class="text-muted small">{{ item.fechaCita | date:'yyyy' }}</span>
+      </div>
+
+      <div class="timeline-marker"></div>
+
+      <div class="timeline-content">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between mb-2">
+              <h5 class="card-title fw-bold mb-0 text-primary">
+                {{ item.motivo || 'Consulta General' }}
+              </h5>
+              <span class="badge" [ngClass]="getEstadoBadge(item.estado)">{{ item.estado }}</span>
+            </div>
+
+            <div class="text-muted small mb-2">
+              <i class="bi bi-clock me-1"></i> {{ item.horaCita }} &nbsp;|&nbsp; 
+              <i class="bi bi-person-badge me-1"></i> Dr. {{ item.odontologo?.nombre }} {{ item.odontologo?.apellido }}
+            </div>
+
+            <div class="bg-light p-2 rounded small mt-2">
+              <strong>Notas:</strong> La atención fue registrada en el sistema exitosamente.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

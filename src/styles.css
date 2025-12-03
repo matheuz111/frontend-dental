@@ -1,4 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
+/* src/styles.css */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  /* Paleta de Colores de ClínicaGeneral */
+  --color-primario: #3498db; 
+  --color-primario-hover: #2980b9;
+  --color-acento: #2ecc71; 
+  --color-texto-principal: #34495e;
+  --color-texto-secundario: #7f8c8d;
+  --color-texto-claro: #ffffff;
+  --color-fondo-panel: #f4f7fc; 
+  --color-fondo-sidebar: #2c3e50; 
+  --color-fondo-tarjeta: #ffffff; 
+}
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  background-color: var(--color-fondo-panel);
+  color: var(--color-texto-principal);
+}

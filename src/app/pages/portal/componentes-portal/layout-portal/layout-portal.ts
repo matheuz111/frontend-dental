@@ -1,17 +1,19 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router'; 
-import { Navbar } from '../../../../core/components/navbar/navbar'; 
-import { Footer } from '../../../../core/components/footer/footer'; 
+import { RouterModule } from '@angular/router'; // Necesario para <router-outlet>
+import { Navbar } from '../../../../core/components/navbar/navbar'; // Importa el componente Navbar
+import { Footer } from '../../../../core/components/footer/footer'; // Importa el componente Footer
 
 @Component({
   selector: 'app-layout-portal',
-  standalone: true,
+  standalone: true, // Asegúrate de que esto esté presente
   imports: [
-    RouterModule, // Permite cargar las páginas internas
-    Navbar,       // Muestra el menú superior
-    Footer        // Muestra el pie de página
+    RouterModule,
+    Navbar,
+    Footer
   ],
   templateUrl: './layout-portal.html',
   styleUrl: './layout-portal.css',
 })
-export class LayoutPortal { }
+export class LayoutPortal {
+
+}

@@ -1,0 +1,80 @@
+/* Contenedor principal */
+.citas-container {
+  max-width: 100%;
+}
+
+/* Animación de entrada suave */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Títulos */
+.header-section h2 {
+  color: var(--color-texto-principal, #34495e);
+  font-weight: 700;
+}
+
+/* Tarjetas de Citas */
+.cita-card {
+  border-radius: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.cita-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Icono Circular de fecha */
+.icon-box {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e3f2fd; /* Azul muy clarito */
+  color: var(--color-primario, #3498db);
+}
+
+/* Badges (Etiquetas de estado) */
+.badge {
+  padding: 0.5em 0.8em;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.badge-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+.badge-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+.badge-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.badge-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+.badge-secondary {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* Empty State */
+.empty-state svg {
+  color: #dee2e6;
+  margin-bottom: 1rem;
+}
