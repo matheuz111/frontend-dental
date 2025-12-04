@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/clinica-dental-frontend",
+            "outputPath": "dist/frontend-dental",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
