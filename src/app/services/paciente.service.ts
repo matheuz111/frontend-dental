@@ -32,17 +32,20 @@ export class PacienteService {
 
   /**
    * Buscar paciente por DNI/Documento de Identidad
-   * NOTA: Ajusta el endpoint según tu backend
+   * NOTA: Se modificó el endpoint de /buscar a / para evitar conflictos de rutas en el backend.
    */
   buscarPorDni(dni: string): Observable<Paciente | null> {
-    // Opción A: Endpoint específico (recomendado)
-    // return this.http.get<Paciente>(`${this.apiUrl}/buscar/dni/${dni}`);
-    
-    // Opción B: Query parameter
     const params = new HttpParams().set('documentoIdentidad', dni);
-    return this.http.get<Paciente[]>(`${this.apiUrl}/buscar`, { params }).pipe(
-      map(pacientes => pacientes.length > 0 ? pacientes[0] : null),
-      catchError(() => of(null))
+    
+    // Cambiamos el endpoint de 'buscar' a la ruta base 'this.apiUrl'
+    return this.http.get<Paciente>(`${this.apiUrl}`, { params }).pipe(
+      // Manejamos 404 (Not Found) como una búsqueda sin resultados (null)
+      catchError(error => {
+        if (error.status === 404) {
+          return of(null);
+        }
+        return of(null);
+      })
     );
   }
 
